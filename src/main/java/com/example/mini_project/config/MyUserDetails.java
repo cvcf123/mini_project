@@ -22,7 +22,7 @@ public class MyUserDetails implements UserDetails{
 	private final Long id;
 	private final String name;
 	private final String email;
-	
+	private final String created_at;
 //	@Override
 //	public Collection<? extends GrantedAuthority> getAuthorities() {
 //		// TODO Auto-generated method stub

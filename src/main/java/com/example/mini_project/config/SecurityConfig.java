@@ -1,5 +1,6 @@
 package com.example.mini_project.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,7 +25,13 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests( request -> request
                         .requestMatchers(
-                                "/"
+                                "/",
+                                "/index.html",
+                                "/register",
+                                "/register.html",
+                                "/users/**",
+                                "/csrf-token"
+
                         ).permitAll() // 일부 요청
                         .anyRequest().authenticated() // 나머지 요청
                 )
@@ -41,7 +48,19 @@ public class SecurityConfig {
 //							.defaultSuccessUrl("/")
                                 .permitAll()
                 )
-                .logout(logout -> logout.permitAll()) // logout
+                .logout(logout -> logout
+                        .logoutUrl("/logout") // 기본값도 /logout
+                        // MyAuthen~Handler 처럼 MyLogoutSuccessHandler 를 만들 수도 있지만, 아래 처럼 직접 처리도 가능
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            response.setContentType("application/json");
+                            response.getWriter().write(
+                                    """
+                                    {"result":"success"}
+                                    """
+                            );
+                        })
+                )
                 .build();
     }
 }

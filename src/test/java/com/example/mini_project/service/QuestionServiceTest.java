@@ -4,7 +4,6 @@ import com.example.mini_project.dto.question.QuestionDetailDto;
 import com.example.mini_project.dto.question.QuestionDto;
 import com.example.mini_project.dto.question.QuestionListDto;
 import com.example.mini_project.entity.Question;
-import com.example.mini_project.entity.Question_tag;
 import com.example.mini_project.entity.Tag;
 import com.example.mini_project.entity.User;
 import com.example.mini_project.repository.QuestionRepository;

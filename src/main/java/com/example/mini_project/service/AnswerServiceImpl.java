@@ -18,7 +18,12 @@ import lombok.RequiredArgsConstructor;
 public class AnswerServiceImpl implements AnswerService {
 
     private final AnswerRepository answerRepository;
-   // private final QuestionRepository questionRepository;
+
+    @Override
+    public List<AnswerResponseDto> getAnswersByQuestion(Long questionId) {
+        return null;
+    }
+    // private final QuestionRepository questionRepository;
 
    // @Override
    // public List<AnswerResponseDto> getAnswersByQuestion(Long questionId) {

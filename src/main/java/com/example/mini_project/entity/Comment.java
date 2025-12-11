@@ -39,5 +39,5 @@ public class Comment {
     private Answer answer;
 
     @Column(nullable = false)
-    private LocalDateTime created_at;  // 🔥 saved.getCreatedAt() 사용하려면 필수!!
+    private LocalDateTime createdAt;  // 🔥 saved.getCreatedAt() 사용하려면 필수!!
 }

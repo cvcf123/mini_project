@@ -68,7 +68,7 @@ public class MyUserDetailsService implements UserDetailsService {
 					.id(user.getId())
 					.name(user.getName())
 					.email(user.getEmail())
-					.created_at(user.getCreated_at())
+					.createdAt(user.getCreatedAt())
 					.build();
 		}else {
 			throw new UsernameNotFoundException("사용자를 찾을 수 없습니다.");

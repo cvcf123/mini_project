@@ -7,5 +7,5 @@ public class CommentResponseDto {
 	private Long id;
     private String name;
     private String content;
-    private String created_at;
+    private String createdAt;
 }

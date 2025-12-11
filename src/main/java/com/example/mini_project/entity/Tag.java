@@ -23,7 +23,6 @@ public class Tag {
     private String name;
 
     @OneToMany(mappedBy = "tag")
-    private List<Question> questions = new ArrayList<>();
-
+    private List<Question_tag> questionTags = new ArrayList<>();
 
 }

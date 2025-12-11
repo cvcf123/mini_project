@@ -15,5 +15,5 @@ public class AnswerResponseDto {
     private Long id;
     private String content;
     private String userName;
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 }

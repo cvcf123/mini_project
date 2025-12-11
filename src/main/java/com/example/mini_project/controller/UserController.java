@@ -31,7 +31,7 @@ public class UserController {
                 .id(userDetails.getId())
                 .name(userDetails.getName())
                 .email(userDetails.getEmail())
-                .created_at(userDetails.getCreated_at())
+                .createdAt(userDetails.getCreatedAt())
                 .build();
     }
 }

@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,33 +11,33 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;   // 🔥 saved.getUser().getUsername() 사용하려면 필수!!
 
-    // Comment → User (N:1)
-    @ManyToOne(fetch = FetchType.LAZY) // 한유저는 여러 댓글 가능
-    @JoinColumn(name = "user_id") //댓글은 하나의 유저에 속함(N:1)
-    private User user;
-
-    // Comment → Answer (N:1)
-    @ManyToOne(fetch = FetchType.LAZY) //한 answer에 여러 댓글 가능
-    @JoinColumn(name = "answer_id")
+    @ManyToOne
+    @JoinColumn(name = "answer_id", nullable = false)
     private Answer answer;
+
+    @Column(nullable = false)
+    private LocalDateTime created_at;  // 🔥 saved.getCreatedAt() 사용하려면 필수!!
 }

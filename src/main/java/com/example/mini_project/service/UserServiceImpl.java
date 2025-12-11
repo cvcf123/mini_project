@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService{
                     .name(userDto.getName())
                     .email(userDto.getEmail())
                     .password(passwordEncoder.encode(userDto.getPassword())) // 패스워드 암호화 후 저장
-                    .created_at(userDto.getCreated_at())
+                    .createdAt(userDto.getCreatedAt())
                     .build();
             User savedUser = userRepository.save(user); // 전달받은 User 객체는 save() 를 통해 영속화
             System.out.println(savedUser);

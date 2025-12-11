@@ -32,12 +32,12 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;   // 🔥 saved.getUser().getUsername() 사용하려면 필수!!
+    private User user;   //  saved.getUser().getUsername() 사용하려면 필수!!
 
     @ManyToOne
     @JoinColumn(name = "answer_id", nullable = false)
     private Answer answer;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;  // 🔥 saved.getCreatedAt() 사용하려면 필수!!
+    private LocalDateTime createdAt;  //  saved.getCreatedAt() 사용하려면 필수!!
 }

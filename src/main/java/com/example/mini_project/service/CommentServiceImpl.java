@@ -1,26 +1,19 @@
 package com.example.mini_project.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import lombok.Builder;
-import lombok.Data;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.example.mini_project.config.CommentService;
 import com.example.mini_project.dto.CommentRequestDto;
 import com.example.mini_project.dto.CommentResponseDto;
 import com.example.mini_project.entity.Answer;
 import com.example.mini_project.entity.Comment;
 import com.example.mini_project.entity.User;
+import com.example.mini_project.repository.AnswerRepository;
 import com.example.mini_project.repository.CommentRepository;
 import com.example.mini_project.repository.UserRepository;
-import com.example.mini_project.repository.UserRepository.AnswerRepository;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,52 +26,52 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponseDto createComment(CommentRequestDto dto) {
 
-        // 1) 현재 로그인된 유저 정보 가져오기
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String user = auth.getName();
-
-        User loginUser = userRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // 2) 댓글이 달린 Answer 조회
+        //  1. Answer 조회
         Answer answer = answerRepository.findById(dto.getAnswerId())
-                .orElseThrow(() -> new RuntimeException("Answer not found"));
+                .orElseThrow(() -> new IllegalArgumentException("해당 답변이 존재하지 않습니다."));
 
-        // 3) Comment 엔티티 생성
+        //  2. 현재 로그인 유저 조회 → 너의 UserService 구조에 따라 나중에 수정 가능
+        // 지금은 테스트 용으로 user_id = 1 고정
+        User user = userRepository.findById(1L)
+                .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+
+        //  3. Comment 엔티티 생성
         Comment comment = Comment.builder()
                 .content(dto.getContent())
-                .created_at(LocalDateTime.now())
-                .user(loginUser)
+                .user(user)
                 .answer(answer)
+                .createdAt(LocalDateTime.now())
                 .build();
 
-        // 4) 저장
         Comment saved = commentRepository.save(comment);
 
-        // 5) DTO 변환 후 반환
+        //  4. CommentResponseDto 로 변환하여 반환
         return CommentResponseDto.builder()
                 .id(saved.getId())
                 .content(saved.getContent())
-                .userName(saved.getUser().getUser())
-                .createdAt(saved.getCreatedAt().toString())
+                .name(saved.getUser().getName())
+                .createdAt(saved.getCreatedAt())
                 .build();
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<CommentResponseDto> getComments(Long answerId) {
 
+        //  Answer 조회
         Answer answer = answerRepository.findById(answerId)
-                .orElseThrow(() -> new RuntimeException("Answer not found"));
+                .orElseThrow(() -> new IllegalArgumentException("해당 답변이 존재하지 않습니다."));
 
-        return commentRepository.findByAnswerOrderByCreatedAtAsc(answer)
-                .stream()
-                .map(c -> CommentResponseDto.builder()
-                        .id(c.getId())
-                        .content(c.getContent())
-                        .userName(c.getUser().getUsername())
-                        .createdAt(c.getCreatedAt().toString())
+        // 댓글 리스트 조회 (created_at ASC 기준)
+        List<Comment> commentList = commentRepository.findByAnswerOrderByCreatedAtAsc(answer);
+
+        return commentList.stream()
+                .map(comment -> CommentResponseDto.builder()
+                        .id(comment.getId())
+                        .content(comment.getContent())
+                        .name(comment.getUser().getName())
+                        .createdAt(comment.getCreatedAt())   
                         .build()
-                ).toList();
+                )
+                .collect(Collectors.toList());
     }
 }

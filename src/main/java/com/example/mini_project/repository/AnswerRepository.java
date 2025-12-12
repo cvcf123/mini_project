@@ -1,5 +1,4 @@
 package com.example.mini_project.repository;
-
 import com.example.mini_project.entity.Answer;
 import com.example.mini_project.entity.Question;
 import org.springframework.data.jpa.repository.JpaRepository;

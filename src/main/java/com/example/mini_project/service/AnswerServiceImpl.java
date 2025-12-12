@@ -10,7 +10,7 @@ import com.example.mini_project.dto.AnswerResponseDto;
 import com.example.mini_project.entity.Answer;
 import com.example.mini_project.entity.Question;
 import com.example.mini_project.repository.AnswerRepository;
-//import com.example.mini_project.repository.QuestionRepository;
+import com.example.mini_project.repository.QuestionRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 public class AnswerServiceImpl implements AnswerService {
 
     private final AnswerRepository answerRepository;
+    private final QuestionRepository questionRepository;
 
-     private final QuestionRepository questionRepository;
 
     @Override
     public List<AnswerResponseDto> getAnswersByQuestion(Long questionId) {
@@ -43,5 +43,4 @@ public class AnswerServiceImpl implements AnswerService {
                         .build()
                 ).collect(Collectors.toList());
     }
-
 }

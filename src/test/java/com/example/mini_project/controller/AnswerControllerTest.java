@@ -183,7 +183,7 @@ public class AnswerControllerTest {
                 .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").value("수정된 답변"));
-    }
+    } 
 
     // DELETE
     @Test

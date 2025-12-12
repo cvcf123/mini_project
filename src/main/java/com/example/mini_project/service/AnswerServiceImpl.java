@@ -3,7 +3,6 @@ package com.example.mini_project.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.example.mini_project.repository.QuestionRepository;
 import org.springframework.stereotype.Service;
 
 import com.example.mini_project.dto.AnswerResponseDto;

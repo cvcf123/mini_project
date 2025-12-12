@@ -34,7 +34,7 @@ public class Answer {
     private String content;
 
     @Column(nullable = false)
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     // Answer → User (N:1)
     @ManyToOne(fetch = FetchType.LAZY) //유저 정보가 필요할 때만 SELECT

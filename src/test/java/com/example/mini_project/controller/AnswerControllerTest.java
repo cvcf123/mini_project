@@ -29,7 +29,6 @@ import com.example.mini_project.dto.AnswerResponseDto;
 import com.example.mini_project.service.AnswerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.RequiredArgsConstructor;
 
 @WebMvcTest(AnswerController.class)
 @AutoConfigureMockMvc(addFilters = false)

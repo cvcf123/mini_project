@@ -51,17 +51,26 @@
         </div>
         <div id="question-container"></div>
         <hr>
-        <div id="answers-container"></div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 id="answers-heading">Answers</h3>
+            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#allAnswersCollapse" aria-expanded="true" aria-controls="allAnswersCollapse" id="toggleAllAnswersBtn">
+                Hide Answers
+            </button>
+        </div>
 
-        <div class="card mt-3" id="answer-form-card" style="display: none;">
-            <div class="card-body">
-                <h5 class="card-title">Post an Answer</h5>
-                <form id="answer-form">
-                    <div class="mb-3">
-                        <textarea class="form-control" id="answer-content" rows="3" required placeholder="Your answer..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-success">Post Answer</button>
-                </form>
+        <div class="collapse show" id="allAnswersCollapse">
+            <div id="answers-container"></div>
+
+            <div class="card mt-3" id="answer-form-card" style="display: none;">
+                <div class="card-body">
+                    <h5 class="card-title">Post an Answer</h5>
+                    <form id="answer-form">
+                        <div class="mb-3">
+                            <textarea class="form-control" id="answer-content" rows="3" required placeholder="Your answer..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">Post Answer</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -76,6 +85,16 @@
         const answerFormCard = document.getElementById('answer-form-card');
         const answerForm = document.getElementById('answer-form');
         const answerContentInput = document.getElementById('answer-content');
+        const toggleAllAnswersBtn = document.getElementById('toggleAllAnswersBtn');
+
+        // Event listener for the main answers collapse button
+        const allAnswersCollapseElement = document.getElementById('allAnswersCollapse');
+        allAnswersCollapseElement.addEventListener('hide.bs.collapse', function () {
+            toggleAllAnswersBtn.textContent = 'Show Answers';
+        });
+        allAnswersCollapseElement.addEventListener('show.bs.collapse', function () {
+            toggleAllAnswersBtn.textContent = 'Hide Answers';
+        });
 
         const formatDate = (dateString) => {
             if (!dateString) return 'Just now';
@@ -124,6 +143,8 @@
                 const answersResponse = await fetch(`/answers/question/${questionId}`);
                 if (!answersResponse.ok) throw new Error('Could not fetch answers');
                 const answers = await answersResponse.json();
+                
+                document.getElementById('answers-heading').textContent = `Answers (${answers.length})`;
 
                 answersContainer.innerHTML = '';
                 if (answers.length === 0) {
@@ -139,20 +160,24 @@
                         <div class="d-flex align-items-start">
                             ${createAvatar(answer.userName).outerHTML}
                             <div>
-                                <div>
-                                    <strong>${answer.userName}</strong>
-                                    <small class="text-muted ms-2">${formatDate(answer.createdAt)}</small>
-                                </div>
-                                <p class="mt-1">${answer.content}</p>
-                                <div class="comments-container" id="comments-for-answer-${answer.id}"></div>
-                                ${currentUser ? `
-                                <form class="comment-form mt-2" data-answer-id="${answer.id}">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control form-control-sm" placeholder="Add a comment..." required>
-                                        <button class="btn btn-outline-secondary btn-sm" type="submit">Post</button>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>${answer.userName}</strong>
+                                        <small class="text-muted ms-2">${formatDate(answer.createdAt)}</small>
                                     </div>
-                                </form>
-                                ` : ''}
+                                </div>
+                                <div id="answerCollapse${answer.id}">
+                                    <p class="mt-1">${answer.content}</p>
+                                    <div class="comments-container" id="comments-for-answer-${answer.id}"></div>
+                                    ${currentUser ? `
+                                    <form class="comment-form mt-2" data-answer-id="${answer.id}">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control form-control-sm" placeholder="Add a comment..." required>
+                                            <button class="btn btn-outline-secondary btn-sm" type="submit">Post</button>
+                                        </div>
+                                    </form>
+                                    ` : ''}
+                                </div>
                             </div>
                         </div>
                     `;

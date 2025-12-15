@@ -93,5 +93,6 @@ public class AnswerServiceImpl implements AnswerService {
                 .userId(answer.getUser().getId()) // ⭐ 핵심
                 .createdAt(answer.getCreatedAt())
                 .build();
+        
     }
 }

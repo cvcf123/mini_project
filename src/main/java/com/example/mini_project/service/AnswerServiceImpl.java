@@ -90,6 +90,7 @@ public class AnswerServiceImpl implements AnswerService {
                 .id(answer.getId())
                 .content(answer.getContent())
                 .userName(answer.getUser() != null ? answer.getUser().getName() : "Unknown User") // 중요
+                .userId(answer.getUser().getId()) // ⭐ 핵심
                 .createdAt(answer.getCreatedAt())
                 .build();
     }

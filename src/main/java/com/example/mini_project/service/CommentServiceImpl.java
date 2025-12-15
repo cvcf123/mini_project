@@ -73,12 +73,14 @@ public class CommentServiceImpl implements CommentService {
         commentRepo.deleteById(id);
     }
 
-    private CommentResponseDto toDto(Comment c) {
-        return CommentResponseDto.builder()
-                .id(c.getId())
-                .name(c.getUser().getName())
-                .content(c.getContent())
-                .createdAt(c.getCreatedAt())
-                .build();
+    private CommentResponseDto toDto(Comment comment) {
+    	return CommentResponseDto.builder()
+    	        .id(comment.getId())
+    	        .content(comment.getContent())
+    	        .name(comment.getUser().getName())
+    	        .userId(comment.getUser().getId())   // ⭐ 핵심
+    	        .createdAt(comment.getCreatedAt())
+    	        .build();
+
     }
 }

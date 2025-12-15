@@ -15,5 +15,6 @@ public class AnswerResponseDto {
     private Long id;
     private String content;
     private String userName;
+    private Long userId;   // ⭐ 추가
     private LocalDateTime createdAt;
 }

@@ -29,16 +29,13 @@ public class SecurityConfig {
                                 "/index.html",
                                 "/register",
                                 "/register.html",
-                                "/login.html",
                                 "/users/**",
                                 "/csrf-token",
                                 "/answer/list",//  답변 조회는 비로그인도 가능함
                                 "/questions/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/answer.html",
-                                "/comment.html"
+                                "/swagger-ui.html"
 
 
                         ).permitAll() // 일부 요청

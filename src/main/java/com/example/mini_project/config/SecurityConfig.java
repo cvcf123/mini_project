@@ -32,7 +32,10 @@ public class SecurityConfig {
                                 "/users/**",
                                 "/csrf-token",
                                 "/answer/list",//  답변 조회는 비로그인도 가능함
-                                "/question/**"
+                                "/question/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
 
                         ).permitAll() // 일부 요청
                         .anyRequest().authenticated() // 나머지 요청

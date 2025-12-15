@@ -1,0 +1,411 @@
+/* Threads Animations - Smooth Animations & Transitions */
+
+/* ===== Keyframe Animations ===== */
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide In from Left */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide In from Right */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Scale In */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Spin Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Shake Animation */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+/* ===== Animation Classes ===== */
+
+.threads-fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.threads-slide-in-left {
+  animation: slideInLeft 0.3s ease forwards;
+}
+
+.threads-slide-in-right {
+  animation: slideInRight 0.3s ease forwards;
+}
+
+.threads-scale-in {
+  animation: scaleIn 0.3s ease forwards;
+}
+
+.threads-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.threads-spin {
+  animation: spin 1s linear infinite;
+}
+
+.threads-shake {
+  animation: shake 0.5s ease;
+}
+
+/* ===== Staggered Animations ===== */
+
+.threads-card:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.threads-card:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.threads-card:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.threads-card:nth-child(4) {
+  animation-delay: 0.15s;
+}
+
+.threads-card:nth-child(5) {
+  animation-delay: 0.2s;
+}
+
+.threads-card:nth-child(6) {
+  animation-delay: 0.25s;
+}
+
+.threads-card:nth-child(7) {
+  animation-delay: 0.3s;
+}
+
+.threads-card:nth-child(8) {
+  animation-delay: 0.35s;
+}
+
+.threads-card:nth-child(9) {
+  animation-delay: 0.4s;
+}
+
+.threads-card:nth-child(10) {
+  animation-delay: 0.45s;
+}
+
+/* ===== Hover Effects ===== */
+
+.threads-hover-lift {
+  transition: transform var(--threads-transition-fast), box-shadow var(--threads-transition-fast);
+}
+
+.threads-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--threads-shadow);
+}
+
+.threads-hover-scale {
+  transition: transform var(--threads-transition-fast);
+}
+
+.threads-hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.threads-hover-brighten {
+  transition: filter var(--threads-transition-fast);
+}
+
+.threads-hover-brighten:hover {
+  filter: brightness(1.1);
+}
+
+/* ===== Loading States ===== */
+
+.threads-loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.threads-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  margin-left: -10px;
+  border: 2px solid var(--threads-border);
+  border-top-color: var(--threads-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ===== Skeleton Loading ===== */
+
+.threads-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--threads-bg-secondary) 0%,
+    var(--threads-bg-hover) 50%,
+    var(--threads-bg-secondary) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: var(--threads-radius-sm);
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.threads-skeleton-text {
+  height: 16px;
+  margin-bottom: var(--threads-space-sm);
+}
+
+.threads-skeleton-title {
+  height: 24px;
+  width: 60%;
+  margin-bottom: var(--threads-space-md);
+}
+
+.threads-skeleton-avatar {
+  width: var(--threads-avatar-md);
+  height: var(--threads-avatar-md);
+  border-radius: var(--threads-radius-full);
+}
+
+/* ===== Transitions ===== */
+
+.threads-transition-all {
+  transition: all var(--threads-transition);
+}
+
+.threads-transition-fast {
+  transition: all var(--threads-transition-fast);
+}
+
+/* Disable transitions when theme changes */
+.threads-no-transition,
+.threads-no-transition *,
+.threads-no-transition *::before,
+.threads-no-transition *::after {
+  transition: none !important;
+}
+
+/* ===== Focus Animations ===== */
+
+.threads-input:focus,
+.threads-textarea:focus {
+  animation: inputFocus 0.3s ease;
+}
+
+@keyframes inputFocus {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 149, 246, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 3px rgba(0, 149, 246, 0.1);
+  }
+}
+
+/* ===== Modal Animations ===== */
+
+.modal.fade .modal-dialog {
+  transition: transform 0.3s ease-out;
+  transform: scale(0.9);
+}
+
+.modal.show .modal-dialog {
+  transform: scale(1);
+}
+
+/* ===== Collapse Animations ===== */
+
+.collapse {
+  transition: height 0.35s ease;
+}
+
+.collapsing {
+  transition: height 0.35s ease;
+}
+
+/* ===== Smooth Scroll ===== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ===== Page Transitions ===== */
+
+.page-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* ===== Button Click Animation ===== */
+
+.threads-btn-primary:active,
+.threads-btn-secondary:active,
+.threads-btn-ghost:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+/* ===== Theme Toggle Animation ===== */
+
+.threads-theme-toggle {
+  position: relative;
+}
+
+.theme-icon {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.theme-icon-light {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+.theme-icon-dark {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+
+[data-theme="dark"] .theme-icon-light {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(-180deg);
+}
+
+[data-theme="dark"] .theme-icon-dark {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+/* ===== Notification/Toast Animations ===== */
+
+@keyframes slideInTop {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutTop {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+.threads-toast-enter {
+  animation: slideInTop 0.3s ease;
+}
+
+.threads-toast-exit {
+  animation: slideOutTop 0.3s ease;
+}
+
+/* ===== Reduce Motion for Accessibility ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}

@@ -29,10 +29,12 @@ public class SecurityConfig {
                                 "/index.html",
                                 "/register",
                                 "/register.html",
+                                "/login.html",
                                 "/users/**",
                                 "/csrf-token",
                                 "/answer/list",//  답변 조회는 비로그인도 가능함
                                 "/question/**"
+
 
                         ).permitAll() // 일부 요청
                         .anyRequest().authenticated() // 나머지 요청

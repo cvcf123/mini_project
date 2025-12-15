@@ -1,21 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<   q:qhtml lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Questions</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/base.css" rel="stylesheet">
+    <link href="/css/components.css" rel="stylesheet">
+    <link href="/css/layout.css" rel="stylesheet">
+    <link href="/css/animations.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h1>Questions</h1>
-            <div id="user-actions">
-                <a href="/login" class="btn btn-primary">Login</a>
-                <a href="/register" class="btn btn-secondary">Register</a>
+    <nav class="threads-navbar">
+        <div class="threads-container">
+            <div class="d-flex justify-content-between align-items-center py-3">
+                <h1 class="threads-logo">Q&A 게시판</h1>
+                <div class="d-flex align-items-center gap-2">
+                    <div id="theme-toggle-container"></div>
+                    <div id="user-actions">
+                        <a href="/login" class="threads-btn-primary">Login</a>
+                        <a href="/register" class="threads-btn-secondary">Register</a>
+                    </div>
+                </div>
             </div>
         </div>
-        <div id="question-list" class="list-group">
+    </nav>
+
+    <div class="threads-container">
+        <div id="question-list" class="threads-feed">
             <!-- Questions will be loaded here -->
         </div>
     </div>
@@ -31,14 +43,14 @@
                 <div class="modal-body">
                     <form id="create-question-form">
                         <div class="mb-3">
-                            <label for="question-title" class="form-label">Title</label>
-                            <input type="text" class="form-control" id="question-title" required>
+                            <label for="question-title" class="threads-label">Title</label>
+                            <input type="text" class="threads-input" id="question-title" required>
                         </div>
                         <div class="mb-3">
-                            <label for="question-content" class="form-label">Content</label>
-                            <textarea class="form-control" id="question-content" rows="3" required></textarea>
+                            <label for="question-content" class="threads-label">Content</label>
+                            <textarea class="threads-textarea" id="question-content" rows="3" required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="submit" class="threads-btn-primary">Submit</button>
                     </form>
                 </div>
             </div>
@@ -46,6 +58,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/theme-toggle.js"></script>
     <script>
         const questionList = document.getElementById('question-list');
         const createQuestionForm = document.getElementById('create-question-form');
@@ -60,11 +73,11 @@
                 currentUser = await response.json();
 
                 userActions.innerHTML = `
-                    <span class="navbar-text me-2">Welcome, ${currentUser.name}</span>
-                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createQuestionModal">
+                    <span class="threads-author me-2">Welcome, ${currentUser.name}</span>
+                    <button type="button" class="threads-btn-primary" data-bs-toggle="modal" data-bs-target="#createQuestionModal">
                         Create Question
                     </button>
-                    <button type="button" class="btn btn-light" id="logout-button">Logout</button>
+                    <button type="button" class="threads-btn-secondary" id="logout-button">Logout</button>
                 `;
                 document.getElementById('logout-button').addEventListener('click', () => {
                     const headers = { [csrfToken.headerName]: csrfToken.token };
@@ -74,8 +87,8 @@
             } catch (error) {
                 currentUser = null;
                 userActions.innerHTML = `
-                    <a href="/login" class="btn btn-primary">Login</a>
-                    <a href="/register" class="btn btn-secondary">Register</a>
+                    <a href="/login" class="threads-btn-primary">Login</a>
+                    <a href="/register" class="threads-btn-secondary">Register</a>
                 `;
             }
         };
@@ -90,22 +103,36 @@
                     questionList.innerHTML = '<p class="text-center">No questions yet.</p>';
                     return;
                 }
-                data.forEach(question => {
+                data.forEach((question, index) => {
                     const questionItem = document.createElement('a');
                     questionItem.href = `/question.html?id=${question.id}`;
-                    questionItem.className = 'list-group-item list-group-item-action flex-column align-items-start';
+                    questionItem.className = 'threads-card threads-card-hover threads-fade-in';
+                    questionItem.style.animationDelay = `${index * 0.05}s`;
 
                     const d = new Date(question.createdAt);
                     const timeString = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
+                    const avatarInitial = question.writerNickname ? question.writerNickname.charAt(0).toUpperCase() : '?';
+                    const contentPreview = question.content ? question.content.substring(0, 150) : '';
+
                     questionItem.innerHTML = `
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">${question.title}</h5>
-                            <small>${timeString}</small>
-                        </div>
-                        <p class="mb-1">By ${question.writerNickname}</p>
-                        <div>
-                            ${question.tags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('')}
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="threads-avatar threads-avatar-md">
+                                ${avatarInitial}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="threads-title mb-1">${question.title}</h5>
+                                        <span class="threads-author">${question.writerNickname}</span>
+                                    </div>
+                                    <small class="threads-time">${timeString}</small>
+                                </div>
+                                ${contentPreview ? `<p class="threads-preview">${contentPreview}${question.content.length > 150 ? '...' : ''}</p>` : ''}
+                                <div class="threads-tags">
+                                    ${question.tags.map(tag => `<span class="threads-tag">${tag}</span>`).join('')}
+                                </div>
+                            </div>
                         </div>
                     `;
                     questionList.appendChild(questionItem);

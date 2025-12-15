@@ -5,55 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Question Details</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .thread-line {
-            position: absolute;
-            left: 20px;
-            top: 60px;
-            bottom: 0;
-            width: 2px;
-            background-color: #d3d3d3;
-        }
-        .comment-thread-line {
-            position: absolute;
-            left: 20px;
-            top: 50px;
-            bottom: 0;
-            width: 2px;
-            background-color: #e0e0e0;
-        }
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #007bff;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-        .post {
-            position: relative;
-            padding-left: 40px;
-        }
-        .comment {
-            position: relative;
-            padding-left: 40px;
-        }
-    </style>
+    <link href="/css/base.css" rel="stylesheet">
+    <link href="/css/components.css" rel="stylesheet">
+    <link href="/css/layout.css" rel="stylesheet">
+    <link href="/css/animations.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <a href="/" class="btn btn-primary">Back to Questions</a>
-            <div id="user-actions"></div>
+    <nav class="threads-navbar">
+        <div class="threads-container">
+            <div class="d-flex justify-content-between align-items-center py-3">
+                <a href="/" class="threads-btn-secondary">← Back to Questions</a>
+                <div class="d-flex align-items-center gap-2">
+                    <div id="theme-toggle-container"></div>
+                    <div id="user-actions"></div>
+                </div>
+            </div>
         </div>
+    </nav>
+
+    <div class="threads-container mt-4">
         <div id="question-container"></div>
         <hr>
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 id="answers-heading">Answers</h3>
-            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#allAnswersCollapse" aria-expanded="true" aria-controls="allAnswersCollapse" id="toggleAllAnswersBtn">
+            <button class="threads-btn-ghost btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#allAnswersCollapse" aria-expanded="true" aria-controls="allAnswersCollapse" id="toggleAllAnswersBtn">
                 Hide Answers
             </button>
         </div>
@@ -61,20 +36,19 @@
         <div class="collapse show" id="allAnswersCollapse">
             <div id="answers-container"></div>
 
-            <div class="card mt-3" id="answer-form-card" style="display: none;">
-                <div class="card-body">
-                    <h5 class="card-title">Post an Answer</h5>
-                    <form id="answer-form">
-                        <div class="mb-3">
-                            <textarea class="form-control" id="answer-content" rows="3" required placeholder="Your answer..."></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-success">Post Answer</button>
-                    </form>
-                </div>
+            <div class="threads-card mt-3" id="answer-form-card" style="display: none;">
+                <h5 class="threads-title mb-3">Post an Answer</h5>
+                <form id="answer-form">
+                    <div class="mb-3">
+                        <textarea class="threads-textarea" id="answer-content" rows="3" required placeholder="Your answer..."></textarea>
+                    </div>
+                    <button type="submit" class="threads-btn-primary">Post Answer</button>
+                </form>
             </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/theme-toggle.js"></script>
     <script>
         let currentUser = null;
         let csrfToken = null;
@@ -102,9 +76,9 @@
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         };
 
-        const createAvatar = (username) => {
+        const createAvatar = (username, size = 'md') => {
             const avatar = document.createElement('div');
-            avatar.className = 'avatar me-3';
+            avatar.className = `threads-avatar threads-avatar-${size} me-3`;
             avatar.textContent = username ? username.charAt(0).toUpperCase() : '?';
             return avatar;
         }
@@ -117,17 +91,17 @@
 
                 comments.forEach(comment => {
                     const commentElement = document.createElement('div');
-                    commentElement.className = 'comment mt-3';
+                    commentElement.className = 'threads-comment';
                     commentElement.innerHTML = `
-                        <div class="comment-thread-line"></div>
-                         <div class="d-flex align-items-start">
-                            ${createAvatar(comment.name).outerHTML}
+                        <div class="threads-line threads-line-subtle"></div>
+                        <div class="d-flex align-items-start">
+                            ${createAvatar(comment.name, 'sm').outerHTML}
                             <div>
                                 <div>
-                                    <strong>${comment.name}</strong>
-                                    <small class="text-muted ms-2">${formatDate(comment.createdAt)}</small>
+                                    <strong class="threads-author-sm">${comment.name}</strong>
+                                    <small class="threads-time ms-2">${formatDate(comment.createdAt)}</small>
                                 </div>
-                                <p class="mt-1 mb-0">${comment.content}</p>
+                                <p class="threads-comment-content">${comment.content}</p>
                             </div>
                         </div>
                     `;
@@ -154,26 +128,24 @@
                 
                 for (const answer of answers) {
                     const answerElement = document.createElement('div');
-                    answerElement.className = 'post mb-4';
+                    answerElement.className = 'threads-post threads-answer';
                     answerElement.innerHTML = `
-                        <div class="thread-line"></div>
+                        <div class="threads-line"></div>
                         <div class="d-flex align-items-start">
-                            ${createAvatar(answer.userName).outerHTML}
-                            <div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>${answer.userName}</strong>
-                                        <small class="text-muted ms-2">${formatDate(answer.createdAt)}</small>
-                                    </div>
+                            ${createAvatar(answer.userName, 'md').outerHTML}
+                            <div class="flex-grow-1">
+                                <div class="mb-2">
+                                    <strong class="threads-author">${answer.userName}</strong>
+                                    <small class="threads-time ms-2">${formatDate(answer.createdAt)}</small>
                                 </div>
                                 <div id="answerCollapse${answer.id}">
-                                    <p class="mt-1">${answer.content}</p>
+                                    <p class="threads-content">${answer.content}</p>
                                     <div class="comments-container" id="comments-for-answer-${answer.id}"></div>
                                     ${currentUser ? `
                                     <form class="comment-form mt-2" data-answer-id="${answer.id}">
                                         <div class="input-group">
-                                            <input type="text" class="form-control form-control-sm" placeholder="Add a comment..." required>
-                                            <button class="btn btn-outline-secondary btn-sm" type="submit">Post</button>
+                                            <input type="text" class="threads-input" placeholder="Add a comment..." required>
+                                            <button class="threads-btn-ghost btn-sm" type="submit">Post</button>
                                         </div>
                                     </form>
                                     ` : ''}
@@ -201,17 +173,19 @@
                 const question = await questionResponse.json();
                 
                 questionContainer.innerHTML = `
-                    <div class="post">
-                         <div class="d-flex align-items-start">
-                            ${createAvatar(question.writerNickname).outerHTML}
-                            <div>
-                                <h5>${question.title}</h5>
-                                <div>
-                                    <strong>${question.writerNickname}</strong>
-                                    <small class="text-muted ms-2">${formatDate(question.createdAt)}</small>
+                    <div class="threads-post threads-question">
+                        <div class="d-flex align-items-start">
+                            ${createAvatar(question.writerNickname, 'lg').outerHTML}
+                            <div class="flex-grow-1">
+                                <h2 class="threads-question-title">${question.title}</h2>
+                                <div class="mb-2">
+                                    <strong class="threads-author">${question.writerNickname}</strong>
+                                    <small class="threads-time ms-2">${formatDate(question.createdAt)}</small>
                                 </div>
-                                <p class="mt-2">${question.content}</p>
-                                <div>${question.tags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('')}</div>
+                                <p class="threads-content mt-3">${question.content}</p>
+                                <div class="threads-tags mt-3">
+                                    ${question.tags.map(tag => `<span class="threads-tag">${tag}</span>`).join('')}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -302,8 +276,8 @@
                 currentUser = await response.json();
                 
                 userActions.innerHTML = `
-                    <span class="navbar-text me-2">Welcome, ${currentUser.name}</span>
-                    <button type="button" class="btn btn-light" id="logout-button">Logout</button>
+                    <span class="threads-author me-2">Welcome, ${currentUser.name}</span>
+                    <button type="button" class="threads-btn-secondary" id="logout-button">Logout</button>
                 `;
                 document.getElementById('logout-button').addEventListener('click', () => {
                     const headers = { [csrfToken.headerName]: csrfToken.token };
@@ -315,8 +289,8 @@
             } catch (error) {
                 currentUser = null;
                 userActions.innerHTML = `
-                    <a href="/login" class="btn btn-primary">Login</a>
-                    <a href="/register" class="btn btn-secondary">Register</a>
+                    <a href="/login" class="threads-btn-primary">Login</a>
+                    <a href="/register" class="threads-btn-secondary">Register</a>
                 `;
                 answerFormCard.style.display = 'none';
             }

@@ -1,14 +1,177 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-	<h1>index.html</h1>
-	<!-- PageController 를 통해서 페이지 이동 -->
-	<a href="/board">게시판</a>
-	<a href="/login">로그인</a>
-	<a href="/register">회원가입</a>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>Questions</h1>
+            <div id="user-actions">
+                <a href="/login" class="btn btn-primary">Login</a>
+                <a href="/register" class="btn btn-secondary">Register</a>
+            </div>
+        </div>
+        <div id="question-list" class="list-group">
+            <!-- Questions will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Create Question Modal -->
+    <div class="modal fade" id="createQuestionModal" tabindex="-1" aria-labelledby="createQuestionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createQuestionModalLabel">Create New Question</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="create-question-form">
+                        <div class="mb-3">
+                            <label for="question-title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="question-title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="question-content" class="form-label">Content</label>
+                            <textarea class="form-control" id="question-content" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const questionList = document.getElementById('question-list');
+        const createQuestionForm = document.getElementById('create-question-form');
+        const userActions = document.getElementById('user-actions');
+        let csrfToken = null;
+        let currentUser = null;
+
+        const checkLoginStatus = async () => {
+            try {
+                const response = await fetch('/users/info');
+                if (!response.ok) throw new Error('Not logged in');
+                currentUser = await response.json();
+
+                userActions.innerHTML = `
+                    <span class="navbar-text me-2">Welcome, ${currentUser.name}</span>
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createQuestionModal">
+                        Create Question
+                    </button>
+                    <button type="button" class="btn btn-light" id="logout-button">Logout</button>
+                `;
+                document.getElementById('logout-button').addEventListener('click', () => {
+                    const headers = { [csrfToken.headerName]: csrfToken.token };
+                    fetch('/logout', { method: 'POST', headers: headers })
+                        .then(() => window.location.href = '/login');
+                });
+            } catch (error) {
+                currentUser = null;
+                userActions.innerHTML = `
+                    <a href="/login" class="btn btn-primary">Login</a>
+                    <a href="/register" class="btn btn-secondary">Register</a>
+                `;
+            }
+        };
+
+        const fetchQuestions = async () => {
+            try {
+                const response = await fetch('/questions');
+                const data = await response.json();
+                
+                questionList.innerHTML = ''; // Clear existing list
+                if (data.length === 0) {
+                    questionList.innerHTML = '<p class="text-center">No questions yet.</p>';
+                    return;
+                }
+                data.forEach(question => {
+                    const questionItem = document.createElement('a');
+                    questionItem.href = `/question.html?id=${question.id}`;
+                    questionItem.className = 'list-group-item list-group-item-action flex-column align-items-start';
+
+                    const d = new Date(question.createdAt);
+                    const timeString = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+                    questionItem.innerHTML = `
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">${question.title}</h5>
+                            <small>${timeString}</small>
+                        </div>
+                        <p class="mb-1">By ${question.writerNickname}</p>
+                        <div>
+                            ${question.tags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('')}
+                        </div>
+                    `;
+                    questionList.appendChild(questionItem);
+                });
+            } catch (error) {
+                console.error('Error fetching questions:', error);
+                questionList.innerHTML = '<p class="text-center text-danger">Error loading questions.</p>';
+            }
+        };
+
+        createQuestionForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const title = document.getElementById('question-title').value;
+            const content = document.getElementById('question-content').value;
+            
+            const headers = {
+                'Content-Type': 'application/json',
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            try {
+                const response = await fetch('/questions', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        title: title,
+                        content: content,
+                        tagIds: []
+                    })
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    alert('You need to be logged in to create a question. Redirecting to login page.');
+                    window.location.href = '/login';
+                    return;
+                }
+
+                if (!response.ok) {
+                    const errorBody = await response.json();
+                    throw new Error(errorBody.message || 'Failed to create question');
+                }
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById('createQuestionModal'));
+                modal.hide();
+                createQuestionForm.reset();
+                await fetchQuestions(); // Refresh the list
+            } catch (error) {
+                console.error('Error creating question:', error);
+                alert(`Error creating question: ${error.message}.`);
+            }
+        });
+
+        const initializeApp = async () => {
+            try {
+                const response = await fetch('/csrf-token');
+                csrfToken = await response.json();
+                await checkLoginStatus();
+                await fetchQuestions();
+            } catch (error) {
+                console.error('Failed to initialize app:', error);
+                // Handle case where CSRF token fetch fails
+                userActions.innerHTML = '<p class="text-danger">Could not initialize app.</p>';
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
 </body>
 </html>

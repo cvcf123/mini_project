@@ -148,6 +148,7 @@ public class QuestionServiceImpl implements QuestionService {
             question.getTitle(),
             question.getContent(),
             question.getWriter().getName(),
+            question.getWriter().getId(),
             question.getCreatedAt(),
             question.getUpdatedAt(),
             tagNames

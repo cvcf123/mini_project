@@ -18,6 +18,7 @@ public class QuestionDetailDto {
     private String title;
     private String content;
     private String writerNickname;
+    private Long writerId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<String> tags;

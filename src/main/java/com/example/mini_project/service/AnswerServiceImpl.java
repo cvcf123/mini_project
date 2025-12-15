@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.mini_project.dto.AnswerRequestDto;
 import com.example.mini_project.dto.AnswerResponseDto;
@@ -26,6 +27,7 @@ public class AnswerServiceImpl implements AnswerService {
     private final UserRepository userRepo;
 
     @Override
+    @Transactional
     public AnswerResponseDto createAnswer(AnswerRequestDto dto) {
 
         Question question = questionRepo.findById(dto.getQuestionId())
@@ -46,6 +48,7 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AnswerResponseDto getAnswer(Long answerId) {
         Answer answer = answerRepo.findById(answerId)
                 .orElseThrow(() -> new IllegalArgumentException("답변 없음"));
@@ -53,6 +56,7 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     @Override
+    @Transactional
     public AnswerResponseDto updateAnswer(Long answerId, AnswerRequestDto dto) {
 
         Answer answer = answerRepo.findById(answerId)
@@ -63,11 +67,13 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     @Override
+    @Transactional
     public void deleteAnswer(Long answerId) {
         answerRepo.deleteById(answerId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AnswerResponseDto> getAnswersByQuestion(Long questionId) {
 
         Question question = questionRepo.findById(questionId)
@@ -83,7 +89,7 @@ public class AnswerServiceImpl implements AnswerService {
         return AnswerResponseDto.builder()
                 .id(answer.getId())
                 .content(answer.getContent())
-                .userName(answer.getUser().getName()) // 중요
+                .userName(answer.getUser() != null ? answer.getUser().getName() : "Unknown User") // 중요
                 .createdAt(answer.getCreatedAt())
                 .build();
     }

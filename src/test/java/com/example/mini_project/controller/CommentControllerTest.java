@@ -33,7 +33,6 @@ import com.example.mini_project.dto.CommentResponseDto;
 import com.example.mini_project.service.CommentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.RequiredArgsConstructor;
 @WebMvcTest(CommentController.class)
 
 public class CommentControllerTest {

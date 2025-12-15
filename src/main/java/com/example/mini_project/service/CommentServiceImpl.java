@@ -31,9 +31,9 @@ public class CommentServiceImpl implements CommentService {
         Answer answer = answerRepo.findById(dto.getAnswerId())
                 .orElseThrow(() -> new IllegalArgumentException("답변 없음"));
 
-        // 로그인 유저 기반으로 1명 고정이라면 dto에 userId 추가 필요
-        User user = userRepo.findById(1L)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+        
+		User user = userRepo.findById(dto.getUserId()) 
+		                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));        
 
         Comment comment = Comment.builder()
                 .content(dto.getContent())
@@ -73,12 +73,14 @@ public class CommentServiceImpl implements CommentService {
         commentRepo.deleteById(id);
     }
 
-    private CommentResponseDto toDto(Comment c) {
-        return CommentResponseDto.builder()
-                .id(c.getId())
-                .name(c.getUser().getName())
-                .content(c.getContent())
-                .createdAt(c.getCreatedAt())
-                .build();
+    private CommentResponseDto toDto(Comment comment) {
+    	return CommentResponseDto.builder()
+    	        .id(comment.getId())
+    	        .content(comment.getContent())
+    	        .name(comment.getUser().getName())
+    	        .userId(comment.getUser().getId())   // ⭐ 핵심
+    	        .createdAt(comment.getCreatedAt())
+    	        .build();
+
     }
 }

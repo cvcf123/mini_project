@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 @Builder
 public class CommentResponseDto {
 	private Long id;
-    private String name;
     private String content;
+    private String name;     // 작성자 이름
+    private Long userId;     // ⭐ 추가 (핵심)
     private LocalDateTime createdAt;
 }

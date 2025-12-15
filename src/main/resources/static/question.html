@@ -87,31 +87,63 @@
             try {
                 const commentsResponse = await fetch(`/comments/answer/${answerId}`);
                 if (!commentsResponse.ok) throw new Error('Could not fetch comments');
+
                 const comments = await commentsResponse.json();
 
                 comments.forEach(comment => {
+
+                    // ✅ 여기서 로그 찍기 (JS 영역)
+                    console.log('comment:', comment);
+                    console.log('currentUser:', currentUser);
+
                     const commentElement = document.createElement('div');
-                    commentElement.className = 'threads-comment';
+                    commentElement.className = 'comment mt-3';
+
                     commentElement.innerHTML = `
-                        <div class="threads-line threads-line-subtle"></div>
+                        <div class="comment-thread-line"></div>
                         <div class="d-flex align-items-start">
-                            ${createAvatar(comment.name, 'sm').outerHTML}
+                            ${createAvatar(comment.name).outerHTML}
                             <div>
                                 <div>
-                                    <strong class="threads-author-sm">${comment.name}</strong>
-                                    <small class="threads-time ms-2">${formatDate(comment.createdAt)}</small>
+                                    <strong>${comment.name}</strong>
+                                    <small class="text-muted ms-2">
+                                        ${formatDate(comment.createdAt)}
+                                    </small>
                                 </div>
-                                <p class="threads-comment-content">${comment.content}</p>
+
+                                <p class="mt-1 mb-0" id="comment-content-${comment.id}">
+                                    ${comment.content}
+                                </p>
+
+                                ${
+                                    currentUser && currentUser.id === comment.userId
+                                        ? `
+                                        <div class="mt-1">
+                                            <button class="btn btn-sm btn-outline-warning me-1"
+                                                onclick="editComment(${comment.id})">
+                                                Edit
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteComment(${comment.id})">
+                                                Delete
+                                            </button>
+                                        </div>
+                                        `
+                                        : ''
+                                }
                             </div>
                         </div>
                     `;
+
                     commentsContainer.appendChild(commentElement);
                 });
             } catch (e) {
-                 commentsContainer.innerHTML = '<small class="text-danger">Could not load comments.</small>';
+                commentsContainer.innerHTML =
+                    '<small class="text-danger">Could not load comments.</small>';
             }
         };
 
+        
         const renderAnswers = async (questionId) => {
             try {
                 const answersResponse = await fetch(`/answers/question/${questionId}`);
@@ -139,7 +171,17 @@
                                     <small class="threads-time ms-2">${formatDate(answer.createdAt)}</small>
                                 </div>
                                 <div id="answerCollapse${answer.id}">
-                                    <p class="threads-content">${answer.content}</p>
+                                <p class="mt-1" id="answer-content-${answer.id}">${answer.content}</p>
+
+                                ${currentUser && currentUser.id === answer.userId ? `
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-warning me-1"
+                                        onclick="editAnswer(${answer.id})">Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger"
+                                        onclick="deleteAnswer(${answer.id})">Delete</button>
+                                </div>
+                                ` : ''}
+
                                     <div class="comments-container" id="comments-for-answer-${answer.id}"></div>
                                     ${currentUser ? `
                                     <form class="comment-form mt-2" data-answer-id="${answer.id}">
@@ -212,11 +254,20 @@
             };
 
             try {
-                const response = await fetch('/comments', {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify({ answerId: Number(answerId), content })
-                });
+            	const payload = {
+            		    answerId: Number(answerId),
+            		    content: content,
+            		    userId: Number(currentUser.id)
+            		};
+
+            		console.log(" COMMENT PAYLOAD", payload);
+
+            		const response = await fetch('/comments', {
+            		    method: 'POST',
+            		    headers: headers,
+            		    body: JSON.stringify(payload)
+            		});
+
                  if (response.status === 401 || response.status === 403) {
                     alert('You need to be logged in to comment. Redirecting to login page.');
                     window.location.href = '/login';
@@ -300,7 +351,7 @@
             try {
                 const csrfResponse = await fetch('/csrf-token');
                 csrfToken = await csrfResponse.json();
-
+			
                 await checkLoginStatus();
                 
                 const urlParams = new URLSearchParams(window.location.search);
@@ -321,6 +372,93 @@
         };
 
         document.addEventListener('DOMContentLoaded', initializeApp);
+        async function editAnswer(answerId) {
+            const contentEl = document.getElementById(`answer-content-${answerId}`);
+            const newContent = prompt('Edit your answer:', contentEl.innerText);
+            if (!newContent) return;
+
+            const headers = {
+                'Content-Type': 'application/json',
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            const response = await fetch(`/answers/${answerId}`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ content: newContent })
+            });
+
+            if (!response.ok) {
+                alert('Failed to update answer');
+                return;
+            }
+
+            contentEl.innerText = newContent;
+        }
+
+        async function deleteAnswer(answerId) {
+            if (!confirm('Delete this answer?')) return;
+
+            const headers = {
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            const response = await fetch(`/answers/${answerId}`, {
+                method: 'DELETE',
+                headers
+            });
+
+            if (!response.ok) {
+                alert('Failed to delete answer');
+                return;
+            }
+
+            window.location.reload();
+        }
+        async function editComment(commentId) {
+            const contentEl = document.getElementById(`comment-content-${commentId}`);
+            const newContent = prompt('Edit your comment:', contentEl.innerText);
+            if (!newContent) return;
+
+            const headers = {
+                'Content-Type': 'application/json',
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            const response = await fetch(`/comments/${commentId}`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ content: newContent })
+            });
+
+            if (!response.ok) {
+                alert('Failed to update comment');
+                return;
+            }
+
+            contentEl.innerText = newContent;
+        }
+
+        async function deleteComment(commentId) {
+            if (!confirm('Delete this comment?')) return;
+
+            const headers = {
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            const response = await fetch(`/comments/${commentId}`, {
+                method: 'DELETE',
+                headers
+            });
+
+            if (!response.ok) {
+                alert('Failed to delete comment');
+                return;
+            }
+
+            window.location.reload();
+        }
+
     </script>
 </body>
 </html>

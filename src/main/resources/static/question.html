@@ -280,11 +280,20 @@
             };
 
             try {
-                const response = await fetch('/comments', {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify({ answerId: Number(answerId), content })
-                });
+            	const payload = {
+            		    answerId: Number(answerId),
+            		    content: content,
+            		    userId: Number(currentUser.id)
+            		};
+
+            		console.log(" COMMENT PAYLOAD", payload);
+
+            		const response = await fetch('/comments', {
+            		    method: 'POST',
+            		    headers: headers,
+            		    body: JSON.stringify(payload)
+            		});
+
                  if (response.status === 401 || response.status === 403) {
                     alert('You need to be logged in to comment. Redirecting to login page.');
                     window.location.href = '/login';
@@ -368,7 +377,7 @@
             try {
                 const csrfResponse = await fetch('/csrf-token');
                 csrfToken = await csrfResponse.json();
-
+			
                 await checkLoginStatus();
                 
                 const urlParams = new URLSearchParams(window.location.search);

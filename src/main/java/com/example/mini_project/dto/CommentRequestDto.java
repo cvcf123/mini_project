@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class CommentRequestDto {
 	  private Long answerId; //어떤 답변(Answer)에 대한 댓글인지 식별.
 	  private String content; //댓글 내용.
-	 
+	  private Long userId;       // 작성자
 }

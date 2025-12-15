@@ -6,4 +6,5 @@ import lombok.Data;
 public class UserResultDto {
     private String result;
     private UserDto userDto;
+    
 }

@@ -35,8 +35,9 @@ public class SecurityConfig {
                                 "/questions/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
-
+                                "/swagger-ui.html",
+                                "/css/**",
+                                "/js/**"
 
                         ).permitAll() // 일부 요청
                         .anyRequest().authenticated() // 나머지 요청

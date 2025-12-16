@@ -215,15 +215,23 @@
                         <div class="d-flex align-items-start">
                             ${createAvatar(question.writerNickname, 'lg').outerHTML}
                             <div class="flex-grow-1">
-                                <h2 class="threads-question-title">${question.title}</h2>
+                                <h2 class="threads-question-title" id="question-title-${question.id}">${question.title}</h2>
                                 <div class="mb-2">
                                     <strong class="threads-author">${question.writerNickname}</strong>
                                     <small class="threads-time ms-2">${formatDate(question.createdAt)}</small>
                                 </div>
-                                <p class="threads-content mt-3">${question.content}</p>
-                                <div class="threads-tags mt-3">
+                                <p class="threads-content mt-3" id="question-content-${question.id}">${question.content}</p>
+                                <div class="threads-tags mt-3" id="question-tags-${question.id}">
                                     ${question.tags.map(tag => `<span class="threads-tag">${tag}</span>`).join('')}
                                 </div>
+                                ${currentUser && currentUser.id === question.writerId ? `
+                                <div class="mt-3">
+                                    <button class="btn btn-sm btn-outline-warning me-1"
+                                        onclick="editQuestion(${question.id})">Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger"
+                                        onclick="deleteQuestion(${question.id})">Delete</button>
+                                </div>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -453,6 +461,72 @@
             }
 
             window.location.reload();
+        }
+
+        async function editQuestion(questionId) {
+            const titleEl = document.getElementById(`question-title-${questionId}`);
+            const contentEl = document.getElementById(`question-content-${questionId}`);
+
+            const newTitle = prompt('Edit question title:', titleEl.innerText);
+            if (!newTitle) return;
+
+            const newContent = prompt('Edit question content:', contentEl.innerText);
+            if (!newContent) return;
+
+            const headers = {
+                'Content-Type': 'application/json',
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            try {
+                const response = await fetch(`/questions/${questionId}`, {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify({
+                        title: newTitle,
+                        content: newContent,
+                        tagIds: []
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert('Failed to update question: ' + (error.message || 'Unknown error'));
+                    return;
+                }
+
+                window.location.reload();
+            } catch (error) {
+                console.error('Error updating question:', error);
+                alert('Failed to update question');
+            }
+        }
+
+        async function deleteQuestion(questionId) {
+            if (!confirm('Are you sure you want to delete this question? This will also delete all answers and comments.')) return;
+
+            const headers = {
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            try {
+                const response = await fetch(`/questions/${questionId}`, {
+                    method: 'DELETE',
+                    headers
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert('Failed to delete question: ' + (error.message || 'Unknown error'));
+                    return;
+                }
+
+                alert('Question deleted successfully');
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Error deleting question:', error);
+                alert('Failed to delete question');
+            }
         }
 
     </script>

@@ -3,7 +3,7 @@
 /* ===== Light Mode Variables ===== */
 :root {
   /* Colors - Background */
-  --threads-bg-primary: #FFFFFF;
+  --threads-bg-primary: #e6e6e6 ;
   --threads-bg-secondary: #F8F9FA;
   --threads-bg-hover: #F5F5F5;
 
@@ -79,7 +79,7 @@
 /* ===== Dark Mode Variables ===== */
 [data-theme="dark"] {
   /* Colors - Background */
-  --threads-bg-primary: #101010;
+  --threads-bg-primary: #1B1B1B; /*101010*/
   --threads-bg-secondary: #1A1A1A;
   --threads-bg-hover: #262626;
 

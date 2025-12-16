@@ -108,10 +108,10 @@
                             currentUser && currentUser.id === comment.userId
                                 ? `
                                 <div class="threads-actions">
-                                    <button class="threads-btn-ghost btn-sm" type="button"
-                                        onclick="editComment(${comment.id})">Edit</button>
+                                    <button class="threads-btn-primary btn-sm" type="button"
+                                        onclick="editComment(${comment.id})">수정</button>
                                     <button class="threads-btn-danger btn-sm" type="button"
-                                        onclick="deleteComment(${comment.id})">Delete</button>
+                                        onclick="deleteComment(${comment.id})">삭제</button>
                                 </div>
                                 `
                                 : ''
@@ -131,22 +131,6 @@
                                     ${comment.content}
                                 </p>
 
-                                ${
-                                    currentUser && currentUser.id === comment.userId
-                                        ? `
-                                        		<div class="d-flex justify-content-end mt-1 gap-1">
-                                        	    <button class="btn btn-sm btn-outline-primary"
-                                        	        onclick="editComment(${comment.id})">
-                                        	        수정
-                                        	    </button>
-                                        	    <button class="btn btn-sm btn-outline-danger"
-                                        	        onclick="deleteComment(${comment.id})">
-                                        	        삭제
-                                        	    </button>
-                                        	</div>
-                                        `
-                                        : ''
-                                }
                             </div>
                         </div>
                     `;
@@ -165,73 +149,91 @@
                 const answersResponse = await fetch(`/answers/question/${questionId}`);
                 if (!answersResponse.ok) throw new Error('Could not fetch answers');
                 const answers = await answersResponse.json();
-                
-                document.getElementById('answers-heading').textContent = `Answers (${answers.length})`;
+
+                document.getElementById('answers-heading').textContent =
+                    `Answers (${answers.length})`;
 
                 answersContainer.innerHTML = '';
                 if (answers.length === 0) {
                     answersContainer.innerHTML = '<p>No answers yet.</p>';
                     return;
                 }
-                
+
                 for (const answer of answers) {
                     const answerElement = document.createElement('div');
                     answerElement.className = 'threads-post threads-answer';
+
                     answerElement.innerHTML = `
                         <div class="threads-line"></div>
 
-                        ${currentUser && currentUser.id === answer.userId ? `
-                        <div class="threads-actions">
-                            <button class="threads-btn-ghost btn-sm" type="button"
-                                onclick="editAnswer(${answer.id})">Edit</button>
-                            <button class="threads-btn-danger btn-sm" type="button"
-                                onclick="deleteAnswer(${answer.id})">Delete</button>
-                        </div>
-                        ` : ''}
+                        <div class="threads-line threads-line-subtle"></div>
+                        ${
+                            currentUser && currentUser.id === answer.userId
+                                ? `
+                                <div class="threads-actions">
+                                    <button class="threads-btn-primary btn-sm" type="button"
+                                        onclick="editAnswer(${answer.id})">수정</button>
+                                    <button class="threads-btn-danger btn-sm" type="button"
+                                        onclick="deleteAnswer(${answer.id})">삭제</button>
+                                </div>
+                                `
+                                : ''
+                        }
+
                         <div class="d-flex align-items-start">
                             ${createAvatar(answer.userName, 'md').outerHTML}
                             <div class="flex-grow-1">
                                 <div class="mb-2">
                                     <strong class="threads-author">${answer.userName}</strong>
-                                    <small class="threads-time ms-2">${formatDate(answer.createdAt)}</small>
+                                    <small class="threads-time ms-2">
+                                        ${formatDate(answer.createdAt)}
+                                    </small>
                                 </div>
-                                <div id="answerCollapse${answer.id}">
-                                <p class="mt-1" id="answer-content-${answer.id}">${answer.content}</p>
 
-                                ${currentUser && currentUser.id === answer.userId ? `
-                                <div class="mt-2">
-                                    <button class="btn btn-sm btn-outline-warning me-1"
-                                        onclick="editAnswer(${answer.id})">수정</button>
-                                    <button class="btn btn-sm btn-outline-danger"
-                                        onclick="deleteAnswer(${answer.id})">삭제</button>
-                                </div>
-                                ` : ''}
+                                <p class="mt-1" id="answer-content-${answer.id}">
+                                    ${answer.content}
+                                </p>
 
-                                    <div class="comments-container" id="comments-for-answer-${answer.id}"></div>
-                                    ${currentUser ? `
-                                    <form class="comment-form mt-2" data-answer-id="${answer.id}">
-                                        <div class="input-group">
-                                            <input type="text" class="threads-input" placeholder="Add a comment..." required>
-                                            <button class="threads-btn-ghost btn-sm" type="submit">Post</button>
-                                        </div>
-                                    </form>
-                                    ` : ''}
-                                </div>
+                                <div class="comments-container"
+                                     id="comments-for-answer-${answer.id}"></div>
+
+                                ${
+                                    currentUser
+                                        ? `
+                                        <form class="comment-form mt-2"
+                                              data-answer-id="${answer.id}">
+                                            <div class="input-group">
+                                                <input type="text"
+                                                       class="threads-input"
+                                                       placeholder="Add a comment..."
+                                                       required>
+                                                <button class="threads-btn-ghost btn-sm"
+                                                        type="submit">Post</button>
+                                            </div>
+                                        </form>
+                                        `
+                                        : ''
+                                }
                             </div>
                         </div>
                     `;
+
                     answersContainer.appendChild(answerElement);
-                    const commentsContainer = document.getElementById(`comments-for-answer-${answer.id}`);
+
+                    const commentsContainer =
+                        document.getElementById(`comments-for-answer-${answer.id}`);
                     await renderComments(answer.id, commentsContainer);
                 }
-                
-                document.querySelectorAll('.comment-form').forEach(form => {
-                    form.addEventListener('submit', handleCommentSubmit);
-                });
+
+                document.querySelectorAll('.comment-form')
+                    .forEach(form => form.addEventListener('submit', handleCommentSubmit));
+
             } catch (error) {
-                answersContainer.innerHTML = `<p class="text-danger">${error.message}.</p>`;
+                answersContainer.innerHTML =
+                    `<p class="text-danger">${error.message}</p>`;
             }
         };
+
 
         const renderQuestion = async (questionId) => {
              try {

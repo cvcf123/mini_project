@@ -17,9 +17,11 @@
   background-color: var(--threads-bg-secondary);
   border: 1px solid var(--threads-border);
   border-radius: var(--threads-radius-lg);
-  padding: 18px;
+  padding: 15px;
   box-shadow: var(--threads-shadow);
+  position: relative;
 }
+
 
 .threads-question {
   padding: 22px;

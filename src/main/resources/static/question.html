@@ -13,8 +13,12 @@
 <body>
     <nav class="threads-navbar">
         <div class="threads-container">
-            <div class="d-flex justify-content-between align-items-center py-3">
+            <div class="d-flex justify-content-between align-items-center py-3"> <!--
                 <a href="/" class="threads-btn-secondary">← Back to Questions</a>
+                
+                <a href="/" class="threads-btn-secondary">← Back to Questions</a>
+                -->
+                <a href="/" class="threads-btn-secondary">Back to Questions</a>
                 <div class="d-flex align-items-center gap-2">
                     <div id="theme-toggle-container"></div>
                     <div id="user-actions"></div>
@@ -25,7 +29,7 @@
 
     <div class="threads-container mt-4">
         <div id="question-container"></div>
-        <hr class="my-4">
+        <div class="threads-line"></div>
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 id="answers-heading" class="section-title">Answers</h3>
             <button class="threads-btn-ghost btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#allAnswersCollapse" aria-expanded="true" aria-controls="allAnswersCollapse" id="toggleAllAnswersBtn">
@@ -100,15 +104,11 @@
                         ${
                             currentUser && currentUser.id === comment.userId
                                 ? `
-                                <div style="position: absolute; top: 8px; right: 8px;">
-                                    <button class="btn btn-sm btn-outline-warning me-1"
-                                        onclick="editComment(${comment.id})">
-                                        Edit
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger"
-                                        onclick="deleteComment(${comment.id})">
-                                        Delete
-                                    </button>
+                                <div class="threads-actions">
+                                    <button class="threads-btn-ghost btn-sm" type="button"
+                                        onclick="editComment(${comment.id})">Edit</button>
+                                    <button class="threads-btn-danger btn-sm" type="button"
+                                        onclick="deleteComment(${comment.id})">Delete</button>
                                 </div>
                                 `
                                 : ''
@@ -157,10 +157,10 @@
                     answerElement.innerHTML = `
                         <div class="threads-line"></div>
                         ${currentUser && currentUser.id === answer.userId ? `
-                        <div style="position: absolute; top: 16px; right: 16px;">
-                            <button class="btn btn-sm btn-outline-warning me-1"
+                        <div class="threads-actions">
+                            <button class="threads-btn-ghost btn-sm" type="button"
                                 onclick="editAnswer(${answer.id})">Edit</button>
-                            <button class="btn btn-sm btn-outline-danger"
+                            <button class="threads-btn-danger btn-sm" type="button"
                                 onclick="deleteAnswer(${answer.id})">Delete</button>
                         </div>
                         ` : ''}
@@ -209,10 +209,10 @@
                 questionContainer.innerHTML = `
                     <div class="threads-post threads-question" style="position: relative;">
                         ${currentUser && currentUser.id === question.writerId ? `
-                        <div style="position: absolute; top: 16px; right: 16px;">
-                            <button class="btn btn-sm btn-outline-warning me-1"
+                        <div class="threads-actions">
+                            <button class="threads-btn-ghost btn-sm" type="button"
                                 onclick="editQuestion(${question.id})">Edit</button>
-                            <button class="btn btn-sm btn-outline-danger"
+                            <button class="threads-btn-danger btn-sm" type="button"
                                 onclick="deleteQuestion(${question.id})">Delete</button>
                         </div>
                         ` : ''}

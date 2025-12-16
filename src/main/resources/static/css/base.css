@@ -3,26 +3,28 @@
 /* ===== Light Mode Variables ===== */
 :root {
   /* Colors - Background */
-  --threads-bg-primary: #e6e6e6 ;
-  --threads-bg-secondary: #F8F9FA;
-  --threads-bg-hover: #F5F5F5;
+  /* Page */
+  --threads-bg-primary: #f6f7fb;
+  /* Surfaces (cards, panels) */
+  --threads-bg-secondary: #ffffff;
+  --threads-bg-hover: rgba(17, 24, 39, 0.03);
 
   /* Colors - Border */
-  --threads-border: #DBDBDB;
-  --threads-border-light: #EFEFEF;
+  --threads-border: #e5e7eb;
+  --threads-border-light: #eef2f7;
 
   /* Colors - Text */
-  --threads-text-primary: #000000;
-  --threads-text-secondary: #737373;
-  --threads-text-tertiary: #A8A8A8;
+  --threads-text-primary: #111827;
+  --threads-text-secondary: #6b7280;
+  --threads-text-tertiary: #9ca3af;
 
   /* Colors - Accent */
-  --threads-accent: #0095F6;
-  --threads-accent-hover: #1877F2;
-  --threads-danger: #ED4956;
+  --threads-accent: #2563eb;
+  --threads-accent-hover: #1d4ed8;
+  --threads-danger: #ef4444;
 
   /* Colors - Thread Line */
-  --threads-thread-line: #E0E0E0;
+  --threads-thread-line: #e5e7eb;
 
   /* Colors - Shadow */
   --threads-shadow: 0 10px 20px rgba(17,24,39,.08);
@@ -57,13 +59,13 @@
   --threads-space-2xl: 32px;
 
   /* Border Radius */
-  --threads-radius-sm: 8px;
-  --threads-radius-md: 12px;
+  --threads-radius-sm: 12px;
+  --threads-radius-md: 14px;
   --threads-radius-lg: 16px;
   --threads-radius-full: 9999px;
 
   /* Layout */
-  --threads-container-max-width: 620px;
+  --threads-container-max-width: 980px;
   --threads-container-padding: 16px;
 
   /* Avatar Sizes */
@@ -79,26 +81,26 @@
 /* ===== Dark Mode Variables ===== */
 [data-theme="dark"] {
   /* Colors - Background */
-  --threads-bg-primary: #1B1B1B; /*101010*/
-  --threads-bg-secondary: #1A1A1A;
-  --threads-bg-hover: #262626;
+  --threads-bg-primary: #0b1220;
+  --threads-bg-secondary: #0f172a;
+  --threads-bg-hover: rgba(229, 231, 235, 0.08);
 
   /* Colors - Border */
-  --threads-border: #363636;
-  --threads-border-light: #2A2A2A;
+  --threads-border: #22304a;
+  --threads-border-light: #22304a;
 
   /* Colors - Text */
-  --threads-text-primary: #FFFFFF;
-  --threads-text-secondary: #A8A8A8;
-  --threads-text-tertiary: #737373;
+  --threads-text-primary: #e5e7eb;
+  --threads-text-secondary: #94a3b8;
+  --threads-text-tertiary: #64748b;
 
   /* Colors - Accent */
-  --threads-accent: #0095F6;
-  --threads-accent-hover: #1877F2;
-  --threads-danger: #ED4956;
+  --threads-accent: #60a5fa;
+  --threads-accent-hover: #3b82f6;
+  --threads-danger: #ef4444;
 
   /* Colors - Thread Line */
-  --threads-thread-line: #2F2F2F;
+  --threads-thread-line: #22304a;
 
   /* Colors - Shadow */
   --threads-shadow: 0 10px 20px rgba(0,0,0,.35);

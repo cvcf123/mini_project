@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<   q:qhtml lang="en">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,8 +13,11 @@
 <body>
     <nav class="threads-navbar">
         <div class="threads-container">
-            <div class="d-flex justify-content-between align-items-center py-3">
+            <div class="d-flex justify-content-between align-items-center py-3"> <!--
                 <h1 class="threads-logo">Q&A 게시판</h1>
+                -->
+                <h1 class="threads-logo">Q&A 게시판</h1>
+                </h1>
                 <div class="d-flex align-items-center gap-2">
                     <div id="theme-toggle-container"></div>
                     <div id="user-actions">
@@ -27,6 +30,16 @@
     </nav>
 
     <div class="threads-container">
+        <div class="threads-card mt-3">
+            <form id="search-form" class="d-flex align-items-center gap-2">
+                <div class="flex-grow-1">
+                    <input type="text" class="threads-input" id="search-query" placeholder="Search by title or content">
+                </div>
+                <button type="submit" class="threads-btn-primary">Search</button>
+                <button type="button" class="threads-btn-ghost" id="search-clear">Clear</button>
+            </form>
+            <small class="threads-time" id="search-status" style="display:none; margin-top: 8px;"></small>
+        </div>
         <div id="question-list" class="threads-feed">
             <!-- Questions will be loaded here -->
         </div>
@@ -63,8 +76,15 @@
         const questionList = document.getElementById('question-list');
         const createQuestionForm = document.getElementById('create-question-form');
         const userActions = document.getElementById('user-actions');
+        const searchForm = document.getElementById('search-form');
+        const searchQueryInput = document.getElementById('search-query');
+        const searchClearButton = document.getElementById('search-clear');
+        const searchStatus = document.getElementById('search-status');
+        const logo = document.querySelector('.threads-logo');
+        if (logo) logo.textContent = 'Q&A 게시판';
         let csrfToken = null;
         let currentUser = null;
+        let currentKeyword = '';
 
         const checkLoginStatus = async () => {
             try {
@@ -93,14 +113,27 @@
             }
         };
 
-        const fetchQuestions = async () => {
+        const fetchQuestions = async (keyword = '') => {
             try {
-                const response = await fetch('/questions');
+                const trimmed = (keyword || '').trim();
+                const url = trimmed ? `/questions?q=${encodeURIComponent(trimmed)}` : '/questions';
+                const response = await fetch(url);
                 const data = await response.json();
-                
+
                 questionList.innerHTML = ''; // Clear existing list
+                currentKeyword = trimmed;
+
+                if (trimmed) {
+                    searchStatus.textContent = `Showing results for "${trimmed}" (${data.length})`;
+                    searchStatus.style.display = 'block';
+                } else {
+                    searchStatus.style.display = 'none';
+                }
+
                 if (data.length === 0) {
-                    questionList.innerHTML = '<p class="text-center">No questions yet.</p>';
+                    questionList.innerHTML = trimmed
+                        ? '<p class="text-center">No matching questions.</p>'
+                        : '<p class="text-center">No questions yet.</p>';
                     return;
                 }
                 data.forEach((question, index) => {
@@ -178,11 +211,21 @@
                 const modal = bootstrap.Modal.getInstance(document.getElementById('createQuestionModal'));
                 modal.hide();
                 createQuestionForm.reset();
-                await fetchQuestions(); // Refresh the list
+                await fetchQuestions(currentKeyword); // Refresh the list (keep current filter)
             } catch (error) {
                 console.error('Error creating question:', error);
                 alert(`Error creating question: ${error.message}.`);
             }
+        });
+
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetchQuestions(searchQueryInput.value);
+        });
+
+        searchClearButton.addEventListener('click', async () => {
+            searchQueryInput.value = '';
+            await fetchQuestions('');
         });
 
         const initializeApp = async () => {
@@ -190,7 +233,7 @@
                 const response = await fetch('/csrf-token');
                 csrfToken = await response.json();
                 await checkLoginStatus();
-                await fetchQuestions();
+                await fetchQuestions('');
             } catch (error) {
                 console.error('Failed to initialize app:', error);
                 // Handle case where CSRF token fetch fails

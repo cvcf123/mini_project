@@ -13,6 +13,8 @@ public interface QuestionService {
 
     List<QuestionListDto> getQuestions();
 
+    List<QuestionListDto> searchQuestions(String keyword);
+
     QuestionDetailDto updateQuestion(Long questionId, Long userId, QuestionDto request);
 
     void deleteQuestion(Long questionId, Long userId);

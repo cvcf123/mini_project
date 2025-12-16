@@ -64,6 +64,7 @@ class QuestionControllerTest {
             "테스트 질문",
             "테스트 내용",
             "테스트유저",
+            1L,
             LocalDateTime.now(),
             null,
             Arrays.asList("Java", "Spring")
@@ -162,6 +163,7 @@ class QuestionControllerTest {
             "수정된 질문",
             "수정된 내용",
             "테스트유저",
+                1L,
             LocalDateTime.now(),
             LocalDateTime.now(),
             Arrays.asList("Java")

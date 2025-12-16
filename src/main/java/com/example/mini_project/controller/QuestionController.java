@@ -35,8 +35,11 @@ public class QuestionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<QuestionListDto>> getQuestions() {
-        List<QuestionListDto> response = questionService.getQuestions();
+    public ResponseEntity<List<QuestionListDto>> getQuestions(
+            @RequestParam(value = "q", required = false) String keyword) {
+        List<QuestionListDto> response = (keyword == null || keyword.isBlank())
+                ? questionService.getQuestions()
+                : questionService.searchQuestions(keyword.trim());
         return ResponseEntity.ok(response);
     }
 

@@ -62,6 +62,14 @@ public class QuestionServiceImpl implements QuestionService {
             .collect(Collectors.toList());
     }
 
+    @Override
+    public List<QuestionListDto> searchQuestions(String keyword) {
+        List<Question> questions = questionRepository.searchByTitleOrContent(keyword);
+        return questions.stream()
+            .map(this::toListResponse)
+            .collect(Collectors.toList());
+    }
+
 
     @Override
     @Transactional

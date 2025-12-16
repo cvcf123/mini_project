@@ -25,9 +25,9 @@
   --threads-thread-line: #E0E0E0;
 
   /* Colors - Shadow */
-  --threads-shadow: rgba(0, 0, 0, 0.1);
-  --threads-shadow-sm: rgba(0, 0, 0, 0.05);
-  --threads-shadow-md: rgba(0, 0, 0, 0.15);
+  --threads-shadow: 0 10px 20px rgba(17,24,39,.08);
+  --threads-shadow-sm: 0 2px 8px rgba(17,24,39,.05);
+  --threads-shadow-md: 0 4px 12px rgba(17,24,39,.12);
 
   /* Typography */
   --threads-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -101,9 +101,9 @@
   --threads-thread-line: #2F2F2F;
 
   /* Colors - Shadow */
-  --threads-shadow: rgba(255, 255, 255, 0.05);
-  --threads-shadow-sm: rgba(255, 255, 255, 0.02);
-  --threads-shadow-md: rgba(255, 255, 255, 0.08);
+  --threads-shadow: 0 10px 20px rgba(0,0,0,.35);
+  --threads-shadow-sm: 0 2px 8px rgba(0,0,0,.15);
+  --threads-shadow-md: 0 4px 12px rgba(0,0,0,.25);
 }
 
 /* ===== CSS Reset & Base Styles ===== */

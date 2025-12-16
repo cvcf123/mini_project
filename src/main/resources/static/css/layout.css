@@ -40,35 +40,10 @@
 }
 
 /* ===== Post Layout ===== */
-.threads-post {
-  position: relative;
-  padding-left: calc(var(--threads-avatar-md) + var(--threads-space-lg));
-  margin-bottom: var(--threads-space-xl);
-}
-
-.threads-question {
-  padding-left: 0;
-  margin-bottom: var(--threads-space-2xl);
-}
+/* Note: .threads-post, .threads-question, .threads-answer styles are in components.css */
 
 /* ===== Comment Layout ===== */
-.threads-comment {
-  position: relative;
-  padding-left: calc(var(--threads-avatar-sm) + var(--threads-space-md));
-  margin-top: var(--threads-space-md);
-  margin-left: calc(var(--threads-avatar-md) + var(--threads-space-lg));
-}
-
-/* ===== Answer Layout ===== */
-.threads-answer {
-  border-bottom: 1px solid var(--threads-border-light);
-  padding-bottom: var(--threads-space-xl);
-  margin-bottom: var(--threads-space-xl);
-}
-
-.threads-answer:last-child {
-  border-bottom: none;
-}
+/* Note: .threads-comment styles are in components.css */
 
 /* ===== Utilities ===== */
 .d-flex {
@@ -168,6 +143,11 @@
   margin-left: var(--threads-space-md);
 }
 
+.my-4 {
+  margin-top: var(--threads-space-lg);
+  margin-bottom: var(--threads-space-lg);
+}
+
 .py-3 {
   padding-top: var(--threads-space-md);
   padding-bottom: var(--threads-space-md);
@@ -184,19 +164,6 @@
 
   .threads-navbar {
     position: sticky;
-  }
-
-  .threads-post {
-    padding-left: calc(var(--threads-avatar-sm) + var(--threads-space-md));
-  }
-
-  .threads-question {
-    padding-left: 0;
-  }
-
-  .threads-comment {
-    margin-left: calc(var(--threads-avatar-sm) + var(--threads-space-md));
-    padding-left: calc(var(--threads-avatar-sm) + var(--threads-space-sm));
   }
 
   .threads-question-title {
@@ -216,15 +183,6 @@
     width: var(--threads-avatar-md);
     height: var(--threads-avatar-md);
     font-size: var(--threads-fs-md);
-  }
-
-  /* Adjust thread line position */
-  .threads-line {
-    left: 16px;
-  }
-
-  .threads-comment .threads-line {
-    left: 16px;
   }
 }
 

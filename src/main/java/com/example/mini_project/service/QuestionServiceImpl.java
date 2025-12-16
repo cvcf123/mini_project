@@ -70,6 +70,22 @@ public class QuestionServiceImpl implements QuestionService {
             .collect(Collectors.toList());
     }
 
+    @Override
+    public List<QuestionListDto> getQuestionsByTag(Long tagId) {
+        List<Question> questions = questionRepository.findByTagId(tagId);
+        return questions.stream()
+            .map(this::toListResponse)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<QuestionListDto> searchQuestionsByTag(String keyword, Long tagId) {
+        List<Question> questions = questionRepository.searchByTitleOrContentAndTagId(keyword, tagId);
+        return questions.stream()
+            .map(this::toListResponse)
+            .collect(Collectors.toList());
+    }
+
 
     @Override
     @Transactional

@@ -33,6 +33,7 @@ public class SecurityConfig {
                                 "/csrf-token",
                                 "/answer/list",//  답변 조회는 비로그인도 가능함
                                 "/questions/**",
+                                "/tags/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",

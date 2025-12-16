@@ -53,6 +53,80 @@
             </div>
         </div>
     </div>
+
+    <!-- Edit Question Modal -->
+    <div class="modal fade" id="editQuestionModal" tabindex="-1" aria-labelledby="editQuestionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editQuestionModalLabel">Edit Question</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-question-form">
+                        <div class="mb-3">
+                            <label for="edit-question-title" class="threads-label">Title</label>
+                            <input type="text" class="threads-input" id="edit-question-title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-question-content" class="threads-label">Content</label>
+                            <textarea class="threads-textarea" id="edit-question-content" rows="5" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="threads-label">Tags</label>
+                            <div id="edit-question-tags" class="threads-tags"></div>
+                        </div>
+                        <button type="submit" class="threads-btn-primary">Save</button>
+                        <button type="button" class="threads-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Answer Modal -->
+    <div class="modal fade" id="editAnswerModal" tabindex="-1" aria-labelledby="editAnswerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAnswerModalLabel">Edit Answer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-answer-form">
+                        <div class="mb-3">
+                            <label for="edit-answer-content" class="threads-label">Content</label>
+                            <textarea class="threads-textarea" id="edit-answer-content" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="threads-btn-primary">Save</button>
+                        <button type="button" class="threads-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Comment Modal -->
+    <div class="modal fade" id="editCommentModal" tabindex="-1" aria-labelledby="editCommentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCommentModalLabel">Edit Comment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-comment-form">
+                        <div class="mb-3">
+                            <label for="edit-comment-content" class="threads-label">Content</label>
+                            <textarea class="threads-textarea" id="edit-comment-content" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="threads-btn-primary">Save</button>
+                        <button type="button" class="threads-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/theme-toggle.js"></script>
     <script>
@@ -66,6 +140,98 @@
         const answerForm = document.getElementById('answer-form');
         const answerContentInput = document.getElementById('answer-content');
         const toggleAllAnswersBtn = document.getElementById('toggleAllAnswersBtn');
+
+        const editQuestionForm = document.getElementById('edit-question-form');
+        const editQuestionTitleInput = document.getElementById('edit-question-title');
+        const editQuestionContentInput = document.getElementById('edit-question-content');
+        const editQuestionTagsContainer = document.getElementById('edit-question-tags');
+        const editAnswerForm = document.getElementById('edit-answer-form');
+        const editAnswerContentInput = document.getElementById('edit-answer-content');
+        const editCommentForm = document.getElementById('edit-comment-form');
+        const editCommentContentInput = document.getElementById('edit-comment-content');
+
+        let editQuestionModal = null;
+        let editAnswerModal = null;
+        let editCommentModal = null;
+
+        let editingQuestionId = null;
+        let editingAnswerId = null;
+        let editingCommentId = null;
+        let editModalsInitialized = false;
+        let allTags = [];
+
+        const renderSelectableTags = (container, tags, selectedIds = []) => {
+            if (!container) return;
+            container.innerHTML = '';
+            tags.forEach(tag => {
+                const el = document.createElement('span');
+                el.className = `threads-tag threads-tag-selectable${selectedIds.includes(tag.id) ? ' threads-tag-selected' : ''}`;
+                el.dataset.tagId = String(tag.id);
+                el.textContent = tag.name;
+                container.appendChild(el);
+            });
+        };
+
+        const getSelectedTagIds = (container) => {
+            if (!container) return [];
+            return Array.from(container.querySelectorAll('.threads-tag-selected'))
+                .map(el => Number(el.dataset.tagId))
+                .filter(id => !Number.isNaN(id));
+        };
+
+        const loadTags = async () => {
+            if (allTags.length) return allTags;
+            const response = await fetch('/tags');
+            if (!response.ok) throw new Error('Failed to load tags');
+            allTags = await response.json();
+            return allTags;
+        };
+
+        const setupEditModals = () => {
+            if (editModalsInitialized) return;
+
+            const editQuestionModalEl = document.getElementById('editQuestionModal');
+            const editAnswerModalEl = document.getElementById('editAnswerModal');
+            const editCommentModalEl = document.getElementById('editCommentModal');
+
+            if (!editQuestionModalEl || !editAnswerModalEl || !editCommentModalEl) return;
+
+            editQuestionModal = bootstrap.Modal.getOrCreateInstance(editQuestionModalEl);
+            editAnswerModal = bootstrap.Modal.getOrCreateInstance(editAnswerModalEl);
+            editCommentModal = bootstrap.Modal.getOrCreateInstance(editCommentModalEl);
+
+            if (editQuestionForm) {
+                editQuestionForm.addEventListener('submit', handleEditQuestionSubmit);
+                editQuestionModalEl.addEventListener('hidden.bs.modal', () => {
+                    editingQuestionId = null;
+                    editQuestionForm.reset();
+                });
+            }
+            if (editAnswerForm) {
+                editAnswerForm.addEventListener('submit', handleEditAnswerSubmit);
+                editAnswerModalEl.addEventListener('hidden.bs.modal', () => {
+                    editingAnswerId = null;
+                    editAnswerForm.reset();
+                });
+            }
+            if (editCommentForm) {
+                editCommentForm.addEventListener('submit', handleEditCommentSubmit);
+                editCommentModalEl.addEventListener('hidden.bs.modal', () => {
+                    editingCommentId = null;
+                    editCommentForm.reset();
+                });
+            }
+
+            if (editQuestionTagsContainer) {
+                editQuestionTagsContainer.addEventListener('click', (e) => {
+                    const tagEl = e.target.closest('.threads-tag-selectable');
+                    if (!tagEl) return;
+                    tagEl.classList.toggle('threads-tag-selected');
+                });
+            }
+
+            editModalsInitialized = true;
+        };
 
         // Event listener for the main answers collapse button
         const allAnswersCollapseElement = document.getElementById('allAnswersCollapse');
@@ -164,9 +330,7 @@
                     answerElement.className = 'threads-post threads-answer';
 
                     answerElement.innerHTML = `
-                        <div class="threads-line"></div>
 
-                        <div class="threads-line threads-line-subtle"></div>
                         ${
                             currentUser && currentUser.id === answer.userId
                                 ? `
@@ -266,12 +430,6 @@
                                     ${question.tags.map(tag => `<span class="threads-tag">${tag}</span>`).join('')}
                                 </div>
                                 ${currentUser && currentUser.id === question.writerId ? `
-                                <div class="mt-3">
-                                    <button class="btn btn-sm btn-outline-warning me-1"
-                                        onclick="editQuestion(${question.id})">Edit</button>
-                                    <button class="btn btn-sm btn-outline-danger"
-                                        onclick="deleteQuestion(${question.id})">Delete</button>
-                                </div>
                                 ` : ''}
                             </div>
                         </div>
@@ -396,6 +554,8 @@
             try {
                 const csrfResponse = await fetch('/csrf-token');
                 csrfToken = await csrfResponse.json();
+
+                setupEditModals();
 			
                 await checkLoginStatus();
                 
@@ -417,9 +577,67 @@
         };
 
         document.addEventListener('DOMContentLoaded', initializeApp);
-        async function editAnswer(answerId) {
+
+        function openEditAnswerModal(answerId) {
+            setupEditModals();
+            if (!editAnswerContentInput) return;
+            editingAnswerId = answerId;
             const contentEl = document.getElementById(`answer-content-${answerId}`);
-            const newContent = prompt('Edit your answer:', contentEl.innerText);
+            editAnswerContentInput.value = contentEl ? contentEl.innerText.trim() : '';
+            editAnswerModal?.show();
+            setTimeout(() => editAnswerContentInput.focus(), 150);
+        }
+
+        function openEditCommentModal(commentId) {
+            setupEditModals();
+            if (!editCommentContentInput) return;
+            editingCommentId = commentId;
+            const contentEl = document.getElementById(`comment-content-${commentId}`);
+            editCommentContentInput.value = contentEl ? contentEl.innerText.trim() : '';
+            editCommentModal?.show();
+            setTimeout(() => editCommentContentInput.focus(), 150);
+        }
+
+        function openEditQuestionModal(questionId) {
+            setupEditModals();
+            if (!editQuestionTitleInput || !editQuestionContentInput) return;
+            editingQuestionId = questionId;
+            const titleEl = document.getElementById(`question-title-${questionId}`);
+            const contentEl = document.getElementById(`question-content-${questionId}`);
+            editQuestionTitleInput.value = titleEl ? titleEl.innerText.trim() : '';
+            editQuestionContentInput.value = contentEl ? contentEl.innerText.trim() : '';
+
+            const currentTagNames = (() => {
+                const tagsEl = document.getElementById(`question-tags-${questionId}`);
+                if (!tagsEl) return [];
+                return Array.from(tagsEl.querySelectorAll('.threads-tag'))
+                    .map(el => el.textContent.trim())
+                    .filter(Boolean);
+            })();
+
+            (async () => {
+                try {
+                    const tags = await loadTags();
+                    const selectedIds = tags
+                        .filter(tag => currentTagNames.includes(tag.name))
+                        .map(tag => tag.id);
+                    renderSelectableTags(editQuestionTagsContainer, tags, selectedIds);
+                } catch (e) {
+                    if (editQuestionTagsContainer) {
+                        editQuestionTagsContainer.innerHTML = '<small class="text-danger">Failed to load tags.</small>';
+                    }
+                }
+            })();
+
+            editQuestionModal?.show();
+            setTimeout(() => editQuestionTitleInput.focus(), 150);
+        }
+
+        async function handleEditAnswerSubmit(e) {
+            e.preventDefault();
+            if (!editingAnswerId) return;
+
+            const newContent = editAnswerContentInput.value.trim();
             if (!newContent) return;
 
             const headers = {
@@ -427,7 +645,7 @@
                 [csrfToken.headerName]: csrfToken.token
             };
 
-            const response = await fetch(`/answers/${answerId}`, {
+            const response = await fetch(`/answers/${editingAnswerId}`, {
                 method: 'PUT',
                 headers,
                 body: JSON.stringify({ content: newContent })
@@ -438,7 +656,95 @@
                 return;
             }
 
-            contentEl.innerText = newContent;
+            const contentEl = document.getElementById(`answer-content-${editingAnswerId}`);
+            if (contentEl) contentEl.innerText = newContent;
+            editAnswerModal?.hide();
+        }
+
+        async function handleEditCommentSubmit(e) {
+            e.preventDefault();
+            if (!editingCommentId) return;
+
+            const newContent = editCommentContentInput.value.trim();
+            if (!newContent) return;
+
+            const headers = {
+                'Content-Type': 'application/json',
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            const response = await fetch(`/comments/${editingCommentId}`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ content: newContent })
+            });
+
+            if (!response.ok) {
+                alert('Failed to update comment');
+                return;
+            }
+
+            const contentEl = document.getElementById(`comment-content-${editingCommentId}`);
+            if (contentEl) contentEl.innerText = newContent;
+            editCommentModal?.hide();
+        }
+
+        async function handleEditQuestionSubmit(e) {
+            e.preventDefault();
+            if (!editingQuestionId) return;
+
+            const newTitle = editQuestionTitleInput.value.trim();
+            const newContent = editQuestionContentInput.value.trim();
+            const tagIds = getSelectedTagIds(editQuestionTagsContainer);
+            if (!newTitle || !newContent) return;
+
+            const headers = {
+                'Content-Type': 'application/json',
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            try {
+                const response = await fetch(`/questions/${editingQuestionId}`, {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify({
+                        title: newTitle,
+                        content: newContent,
+                        tagIds: tagIds
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert('Failed to update question: ' + (error.message || 'Unknown error'));
+                    return;
+                }
+
+                const titleEl = document.getElementById(`question-title-${editingQuestionId}`);
+                const contentEl = document.getElementById(`question-content-${editingQuestionId}`);
+                const tagsEl = document.getElementById(`question-tags-${editingQuestionId}`);
+                if (titleEl) titleEl.innerText = newTitle;
+                if (contentEl) contentEl.innerText = newContent;
+                if (tagsEl) {
+                    tagsEl.innerHTML = '';
+                    allTags
+                        .filter(tag => tagIds.includes(tag.id))
+                        .forEach(tag => {
+                            const span = document.createElement('span');
+                            span.className = 'threads-tag';
+                            span.textContent = tag.name;
+                            tagsEl.appendChild(span);
+                        });
+                }
+                editQuestionModal?.hide();
+            } catch (error) {
+                console.error('Error updating question:', error);
+                alert('Failed to update question');
+            }
+        }
+
+        async function editAnswer(answerId) {
+            openEditAnswerModal(answerId);
         }
 
         async function deleteAnswer(answerId) {
@@ -461,27 +767,7 @@
             window.location.reload();
         }
         async function editComment(commentId) {
-            const contentEl = document.getElementById(`comment-content-${commentId}`);
-            const newContent = prompt('Edit your comment:', contentEl.innerText);
-            if (!newContent) return;
-
-            const headers = {
-                'Content-Type': 'application/json',
-                [csrfToken.headerName]: csrfToken.token
-            };
-
-            const response = await fetch(`/comments/${commentId}`, {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify({ content: newContent })
-            });
-
-            if (!response.ok) {
-                alert('Failed to update comment');
-                return;
-            }
-
-            contentEl.innerText = newContent;
+            openEditCommentModal(commentId);
         }
 
         async function deleteComment(commentId) {
@@ -505,42 +791,7 @@
         }
 
         async function editQuestion(questionId) {
-            const titleEl = document.getElementById(`question-title-${questionId}`);
-            const contentEl = document.getElementById(`question-content-${questionId}`);
-
-            const newTitle = prompt('Edit question title:', titleEl.innerText);
-            if (!newTitle) return;
-
-            const newContent = prompt('Edit question content:', contentEl.innerText);
-            if (!newContent) return;
-
-            const headers = {
-                'Content-Type': 'application/json',
-                [csrfToken.headerName]: csrfToken.token
-            };
-
-            try {
-                const response = await fetch(`/questions/${questionId}`, {
-                    method: 'PUT',
-                    headers,
-                    body: JSON.stringify({
-                        title: newTitle,
-                        content: newContent,
-                        tagIds: []
-                    })
-                });
-
-                if (!response.ok) {
-                    const error = await response.json();
-                    alert('Failed to update question: ' + (error.message || 'Unknown error'));
-                    return;
-                }
-
-                window.location.reload();
-            } catch (error) {
-                console.error('Error updating question:', error);
-                alert('Failed to update question');
-            }
+            openEditQuestionModal(questionId);
         }
 
         async function deleteQuestion(questionId) {

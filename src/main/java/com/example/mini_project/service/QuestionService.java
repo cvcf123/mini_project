@@ -15,6 +15,10 @@ public interface QuestionService {
 
     List<QuestionListDto> searchQuestions(String keyword);
 
+    List<QuestionListDto> getQuestionsByTag(Long tagId);
+
+    List<QuestionListDto> searchQuestionsByTag(String keyword, Long tagId);
+
     QuestionDetailDto updateQuestion(Long questionId, Long userId, QuestionDto request);
 
     void deleteQuestion(Long questionId, Long userId);

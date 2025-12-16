@@ -17,4 +17,29 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
         order by q.createdAt desc
         """)
     List<Question> searchByTitleOrContent(@Param("keyword") String keyword);
+
+    @Query("""
+        select distinct q
+        from Question q
+        join q.questionTags qt
+        where qt.tag.id = :tagId
+        order by q.createdAt desc
+        """)
+    List<Question> findByTagId(@Param("tagId") Long tagId);
+
+    @Query("""
+        select distinct q
+        from Question q
+        join q.questionTags qt
+        where qt.tag.id = :tagId
+          and (
+            lower(q.title) like lower(concat('%', :keyword, '%'))
+            or lower(q.content) like lower(concat('%', :keyword, '%'))
+          )
+        order by q.createdAt desc
+        """)
+    List<Question> searchByTitleOrContentAndTagId(
+        @Param("keyword") String keyword,
+        @Param("tagId") Long tagId
+    );
 }

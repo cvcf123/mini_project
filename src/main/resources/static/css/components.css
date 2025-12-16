@@ -301,6 +301,21 @@
   background-color: rgba(96, 165, 250, 0.14);
 }
 
+.threads-tag-selectable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.threads-tag-selected {
+  background-color: rgba(37, 99, 235, 0.14);
+  border-color: rgba(37, 99, 235, 0.45);
+}
+
+[data-theme="dark"] .threads-tag-selected {
+  background-color: rgba(96, 165, 250, 0.22);
+  border-color: rgba(96, 165, 250, 0.55);
+}
+
 /* ===== Text Components ===== */
 .threads-title {
   font-size: var(--threads-fs-lg);
@@ -510,4 +525,3 @@
   padding: 2px 8px;
   font-size: 0.75rem;
 }
-

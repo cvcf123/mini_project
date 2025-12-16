@@ -36,10 +36,20 @@ public class QuestionController {
 
     @GetMapping
     public ResponseEntity<List<QuestionListDto>> getQuestions(
-            @RequestParam(value = "q", required = false) String keyword) {
-        List<QuestionListDto> response = (keyword == null || keyword.isBlank())
-                ? questionService.getQuestions()
-                : questionService.searchQuestions(keyword.trim());
+            @RequestParam(value = "q", required = false) String keyword,
+            @RequestParam(value = "tagId", required = false) Long tagId) {
+        String normalizedKeyword = keyword == null ? null : keyword.trim();
+
+        List<QuestionListDto> response;
+        if (tagId != null && normalizedKeyword != null && !normalizedKeyword.isBlank()) {
+            response = questionService.searchQuestionsByTag(normalizedKeyword, tagId);
+        } else if (tagId != null) {
+            response = questionService.getQuestionsByTag(tagId);
+        } else if (normalizedKeyword == null || normalizedKeyword.isBlank()) {
+            response = questionService.getQuestions();
+        } else {
+            response = questionService.searchQuestions(normalizedKeyword);
+        }
         return ResponseEntity.ok(response);
     }
 

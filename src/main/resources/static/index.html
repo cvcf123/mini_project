@@ -39,6 +39,7 @@
                 <button type="button" class="threads-btn-ghost" id="search-clear">Clear</button>
             </form>
             <small class="threads-time" id="search-status" style="display:none; margin-top: 8px;"></small>
+            <div id="search-tag-filter" class="threads-tags mt-2"></div>
         </div>
         <div id="question-list" class="threads-feed">
             <!-- Questions will be loaded here -->
@@ -63,6 +64,10 @@
                             <label for="question-content" class="threads-label">Content</label>
                             <textarea class="threads-textarea" id="question-content" rows="3" required></textarea>
                         </div>
+                        <div class="mb-3">
+                            <label class="threads-label">Tags</label>
+                            <div id="create-question-tags" class="threads-tags"></div>
+                        </div>
                         <button type="submit" class="threads-btn-primary">Submit</button>
                     </form>
                 </div>
@@ -80,11 +85,97 @@
         const searchQueryInput = document.getElementById('search-query');
         const searchClearButton = document.getElementById('search-clear');
         const searchStatus = document.getElementById('search-status');
-        const logo = document.querySelector('.threads-logo');
-        if (logo) logo.textContent = 'Q&A 게시판';
+        const searchTagFilter = document.getElementById('search-tag-filter');
+        const createQuestionTagsContainer = document.getElementById('create-question-tags');
+        const createQuestionModalEl = document.getElementById('createQuestionModal');
+
         let csrfToken = null;
         let currentUser = null;
         let currentKeyword = '';
+        let currentTagId = null;
+        let allTags = [];
+
+        const renderSelectableTags = (container, tags, selectedIds = []) => {
+            if (!container) return;
+            container.innerHTML = '';
+            tags.forEach(tag => {
+                const el = document.createElement('span');
+                el.className = `threads-tag threads-tag-selectable${selectedIds.includes(tag.id) ? ' threads-tag-selected' : ''}`;
+                el.dataset.tagId = String(tag.id);
+                el.textContent = tag.name;
+                container.appendChild(el);
+            });
+        };
+
+        const getSelectedTagIds = (container) => {
+            if (!container) return [];
+            return Array.from(container.querySelectorAll('.threads-tag-selected'))
+                .map(el => Number(el.dataset.tagId))
+                .filter(id => !Number.isNaN(id));
+        };
+
+        const loadTags = async () => {
+            if (allTags.length) return allTags;
+            const response = await fetch('/tags');
+            if (!response.ok) throw new Error('Failed to load tags');
+            allTags = await response.json();
+            return allTags;
+        };
+
+        const renderSearchTagFilter = () => {
+            if (!searchTagFilter) return;
+            searchTagFilter.innerHTML = '';
+
+            const allEl = document.createElement('span');
+            allEl.className = `threads-tag threads-tag-selectable${currentTagId == null ? ' threads-tag-selected' : ''}`;
+            allEl.dataset.tagId = '';
+            allEl.textContent = 'All';
+            searchTagFilter.appendChild(allEl);
+
+            allTags.forEach(tag => {
+                const el = document.createElement('span');
+                el.className = `threads-tag threads-tag-selectable${currentTagId === tag.id ? ' threads-tag-selected' : ''}`;
+                el.dataset.tagId = String(tag.id);
+                el.textContent = tag.name;
+                searchTagFilter.appendChild(el);
+            });
+        };
+
+        if (searchTagFilter) {
+            searchTagFilter.addEventListener('click', async (e) => {
+                const tagEl = e.target.closest('.threads-tag-selectable');
+                if (!tagEl) return;
+
+                const raw = tagEl.dataset.tagId;
+                currentTagId = raw ? Number(raw) : null;
+                if (raw && Number.isNaN(currentTagId)) currentTagId = null;
+
+                renderSearchTagFilter();
+                await fetchQuestions(currentKeyword, currentTagId);
+            });
+        }
+
+        if (createQuestionTagsContainer) {
+            createQuestionTagsContainer.addEventListener('click', (e) => {
+                const tagEl = e.target.closest('.threads-tag-selectable');
+                if (!tagEl) return;
+                tagEl.classList.toggle('threads-tag-selected');
+            });
+        }
+
+        if (createQuestionModalEl) {
+            createQuestionModalEl.addEventListener('show.bs.modal', async () => {
+                try {
+                    const tags = await loadTags();
+                    renderSelectableTags(createQuestionTagsContainer, tags);
+                    renderSearchTagFilter();
+                } catch (e) {
+                    if (createQuestionTagsContainer) {
+                        createQuestionTagsContainer.innerHTML = '<small class="text-danger">Failed to load tags.</small>';
+                    }
+                }
+            });
+        }
 
         const checkLoginStatus = async () => {
             try {
@@ -93,11 +184,11 @@
                 currentUser = await response.json();
 
                 userActions.innerHTML = `
-                    <span class="threads-author me-2">Welcome, ${currentUser.name}</span>
+                    <span class="threads-author me-2"> ${currentUser.name} 님  </span>
                     <button type="button" class="threads-btn-primary" data-bs-toggle="modal" data-bs-target="#createQuestionModal">
-                        Create Question
+                        질문하기
                     </button>
-                    <button type="button" class="threads-btn-secondary" id="logout-button">Logout</button>
+                    <button type="button" class="threads-btn-secondary" id="logout-button">로그아웃</button>
                 `;
                 document.getElementById('logout-button').addEventListener('click', () => {
                     const headers = { [csrfToken.headerName]: csrfToken.token };
@@ -113,25 +204,37 @@
             }
         };
 
-        const fetchQuestions = async (keyword = '') => {
+        const fetchQuestions = async (keyword = '', tagId = null) => {
             try {
                 const trimmed = (keyword || '').trim();
-                const url = trimmed ? `/questions?q=${encodeURIComponent(trimmed)}` : '/questions';
+                const params = new URLSearchParams();
+                if (trimmed) params.set('q', trimmed);
+                if (tagId != null) params.set('tagId', String(tagId));
+                const url = params.toString() ? `/questions?${params.toString()}` : '/questions';
                 const response = await fetch(url);
                 const data = await response.json();
 
                 questionList.innerHTML = ''; // Clear existing list
                 currentKeyword = trimmed;
+                currentTagId = tagId;
+                renderSearchTagFilter();
 
                 if (trimmed) {
-                    searchStatus.textContent = `Showing results for "${trimmed}" (${data.length})`;
+                    const tagLabel = currentTagId != null
+                        ? ` in #${(allTags.find(t => t.id === currentTagId) || {}).name || currentTagId}`
+                        : '';
+                    searchStatus.textContent = `Showing results for "${trimmed}"${tagLabel} (${data.length})`;
+                    searchStatus.style.display = 'block';
+                } else if (currentTagId != null) {
+                    const tagName = (allTags.find(t => t.id === currentTagId) || {}).name || currentTagId;
+                    searchStatus.textContent = `Showing #${tagName} (${data.length})`;
                     searchStatus.style.display = 'block';
                 } else {
                     searchStatus.style.display = 'none';
                 }
 
                 if (data.length === 0) {
-                    questionList.innerHTML = trimmed
+                    questionList.innerHTML = (trimmed || currentTagId != null)
                         ? '<p class="text-center">No matching questions.</p>'
                         : '<p class="text-center">No questions yet.</p>';
                     return;
@@ -180,6 +283,7 @@
             e.preventDefault();
             const title = document.getElementById('question-title').value;
             const content = document.getElementById('question-content').value;
+            const tagIds = getSelectedTagIds(createQuestionTagsContainer);
             
             const headers = {
                 'Content-Type': 'application/json',
@@ -193,7 +297,7 @@
                     body: JSON.stringify({
                         title: title,
                         content: content,
-                        tagIds: []
+                        tagIds: tagIds
                     })
                 });
 
@@ -211,7 +315,8 @@
                 const modal = bootstrap.Modal.getInstance(document.getElementById('createQuestionModal'));
                 modal.hide();
                 createQuestionForm.reset();
-                await fetchQuestions(currentKeyword); // Refresh the list (keep current filter)
+                renderSelectableTags(createQuestionTagsContainer, allTags);
+                await fetchQuestions(currentKeyword, currentTagId); // Refresh the list (keep current filter)
             } catch (error) {
                 console.error('Error creating question:', error);
                 alert(`Error creating question: ${error.message}.`);
@@ -220,12 +325,14 @@
 
         searchForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            await fetchQuestions(searchQueryInput.value);
+            await fetchQuestions(searchQueryInput.value, currentTagId);
         });
 
         searchClearButton.addEventListener('click', async () => {
             searchQueryInput.value = '';
-            await fetchQuestions('');
+            currentTagId = null;
+            renderSearchTagFilter();
+            await fetchQuestions('', null);
         });
 
         const initializeApp = async () => {
@@ -233,7 +340,9 @@
                 const response = await fetch('/csrf-token');
                 csrfToken = await response.json();
                 await checkLoginStatus();
-                await fetchQuestions('');
+                await loadTags();
+                renderSearchTagFilter();
+                await fetchQuestions('', null);
             } catch (error) {
                 console.error('Failed to initialize app:', error);
                 // Handle case where CSRF token fetch fails

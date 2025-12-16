@@ -461,3 +461,28 @@
 [data-theme="dark"] .btn-close {
   --threads-invert: 1;
 }
+
+/* =========================
+   Comment Action Buttons
+   (Right Fixed Position)
+========================= */
+
+.comment {
+  position: relative;
+  padding-right: 110px; /* 오른쪽 버튼 공간 확보 */
+}
+
+.comment-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  display: flex;
+  gap: 6px;
+}
+
+.comment-actions .btn {
+  padding: 2px 8px;
+  font-size: 0.75rem;
+}
+

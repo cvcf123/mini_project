@@ -46,7 +46,7 @@
                 <h5 class="threads-title mb-3">답변 달기</h5>
                 <form id="answer-form">
                     <div class="mb-3">
-                        <textarea class="threads-textarea" id="answer-content" rows="3" required placeholder="Your answer..."></textarea>
+                        <textarea class="threads-textarea" id="answer-content" rows="3" required placeholder="답변 작성"></textarea>
                     </div>
                     <button type="submit" class="threads-btn-primary">답변 달기</button>
                 </form>
@@ -236,10 +236,10 @@
         // Event listener for the main answers collapse button
         const allAnswersCollapseElement = document.getElementById('allAnswersCollapse');
         allAnswersCollapseElement.addEventListener('hide.bs.collapse', function () {
-            toggleAllAnswersBtn.textContent = 'Show Answers';
+            toggleAllAnswersBtn.textContent = '답변 보이기';
         });
         allAnswersCollapseElement.addEventListener('show.bs.collapse', function () {
-            toggleAllAnswersBtn.textContent = 'Hide Answers';
+            toggleAllAnswersBtn.textContent = '답변 숨기기';
         });
 
         const formatDate = (dateString) => {
@@ -317,11 +317,11 @@
                 const answers = await answersResponse.json();
 
                 document.getElementById('answers-heading').textContent =
-                    `Answers (${answers.length})`;
+                    `답변 (${answers.length}개)`;
 
                 answersContainer.innerHTML = '';
                 if (answers.length === 0) {
-                    answersContainer.innerHTML = '<p>No answers yet.</p>';
+                    answersContainer.innerHTML = '<p>작성된 답변없음yet.</p>';
                     return;
                 }
 
@@ -369,10 +369,10 @@
                                             <div class="input-group">
                                                 <input type="text"
                                                        class="threads-input"
-                                                       placeholder="Add a comment..."
+                                                       placeholder="댓글을 달아주세요"
                                                        required>
                                                 <button class="threads-btn-ghost btn-sm"
-                                                        type="submit">Post</button>
+                                                        type="submit">댓글 달기</button>
                                             </div>
                                         </form>
                                         `
@@ -530,7 +530,7 @@
                 currentUser = await response.json();
                 
                 userActions.innerHTML = `
-                    <span class="threads-author me-2">Welcome, ${currentUser.name}</span>
+                    <span class="threads-author me-2">${currentUser.name}님 환영합니다</span>
                     <button type="button" class="threads-btn-secondary" id="logout-button">로그아웃</button>
                 `;
                 document.getElementById('logout-button').addEventListener('click', () => {

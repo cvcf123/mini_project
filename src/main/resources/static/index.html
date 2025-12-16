@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Questions</title>
+    <title>문제</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/base.css" rel="stylesheet">
     <link href="/css/components.css" rel="stylesheet">
@@ -21,8 +21,8 @@
                 <div class="d-flex align-items-center gap-2">
                     <div id="theme-toggle-container"></div>
                     <div id="user-actions">
-                        <a href="/login" class="threads-btn-primary">Login</a>
-                        <a href="/register" class="threads-btn-secondary">Register</a>
+                        <a href="/login" class="threads-btn-primary">로그인</a>
+                        <a href="/register" class="threads-btn-secondary">회원 가입</a>
                     </div>
                 </div>
             </div>
@@ -35,8 +35,8 @@
                 <div class="flex-grow-1">
                     <input type="text" class="threads-input" id="search-query" placeholder="Search by title or content">
                 </div>
-                <button type="submit" class="threads-btn-primary">Search</button>
-                <button type="button" class="threads-btn-ghost" id="search-clear">Clear</button>
+                <button type="submit" class="threads-btn-primary">찾기</button>
+                <button type="button" class="threads-btn-ghost" id="search-clear">지움</button>
             </form>
             <small class="threads-time" id="search-status" style="display:none; margin-top: 8px;"></small>
             <div id="search-tag-filter" class="threads-tags mt-2"></div>
@@ -51,24 +51,24 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="createQuestionModalLabel">Create New Question</h5>
+                    <h5 class="modal-title" id="createQuestionModalLabel">문제 등록</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="create-question-form">
                         <div class="mb-3">
-                            <label for="question-title" class="threads-label">Title</label>
+                            <label for="question-title" class="threads-label">제목</label>
                             <input type="text" class="threads-input" id="question-title" required>
                         </div>
                         <div class="mb-3">
-                            <label for="question-content" class="threads-label">Content</label>
+                            <label for="question-content" class="threads-label">내용</label>
                             <textarea class="threads-textarea" id="question-content" rows="3" required></textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="threads-label">Tags</label>
+                            <label class="threads-label">카테고리</label>
                             <div id="create-question-tags" class="threads-tags"></div>
                         </div>
-                        <button type="submit" class="threads-btn-primary">Submit</button>
+                        <button type="submit" class="threads-btn-primary">등록</button>
                     </form>
                 </div>
             </div>

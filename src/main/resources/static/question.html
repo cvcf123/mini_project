@@ -92,10 +92,6 @@
 
                 comments.forEach(comment => {
 
-                    // ✅ 여기서 로그 찍기 (JS 영역)
-                    console.log('comment:', comment);
-                    console.log('currentUser:', currentUser);
-
                     const commentElement = document.createElement('div');
                     commentElement.className = 'comment mt-3';
 
@@ -118,16 +114,16 @@
                                 ${
                                     currentUser && currentUser.id === comment.userId
                                         ? `
-                                        <div class="mt-1">
-                                            <button class="btn btn-sm btn-outline-warning me-1"
-                                                onclick="editComment(${comment.id})">
-                                                Edit
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                onclick="deleteComment(${comment.id})">
-                                                Delete
-                                            </button>
-                                        </div>
+                                        		<div class="d-flex justify-content-end mt-1 gap-1">
+                                        	    <button class="btn btn-sm btn-outline-warning"
+                                        	        onclick="editComment(${comment.id})">
+                                        	        수정
+                                        	    </button>
+                                        	    <button class="btn btn-sm btn-outline-danger"
+                                        	        onclick="deleteComment(${comment.id})">
+                                        	        삭제
+                                        	    </button>
+                                        	</div>
                                         `
                                         : ''
                                 }
@@ -176,9 +172,9 @@
                                 ${currentUser && currentUser.id === answer.userId ? `
                                 <div class="mt-2">
                                     <button class="btn btn-sm btn-outline-warning me-1"
-                                        onclick="editAnswer(${answer.id})">Edit</button>
+                                        onclick="editAnswer(${answer.id})">수정</button>
                                     <button class="btn btn-sm btn-outline-danger"
-                                        onclick="deleteAnswer(${answer.id})">Delete</button>
+                                        onclick="deleteAnswer(${answer.id})">삭제</button>
                                 </div>
                                 ` : ''}
 

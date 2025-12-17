@@ -37,3 +37,6 @@ out/
 .vscode/
 
 src/main/resources/application-local.properties
+package.json
+package-lock.json
+.package-lock.json

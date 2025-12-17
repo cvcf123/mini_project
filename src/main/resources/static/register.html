@@ -1,73 +1,117 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - Q&A</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/base.css" rel="stylesheet">
+    <link href="/css/components.css" rel="stylesheet">
+    <link href="/css/layout.css" rel="stylesheet">
+    <link href="/css/animations.css" rel="stylesheet">
 </head>
 <body>
-	<h1>register.html</h1>
-	<hr>
-	<!-- login.html 은 username, register.html name <= UserDto 를 사용 -->
-	name : <input type="text" id="name" name="name"><br>
-	email : <input type="text" id="email" name="email"><br>
-	Password : <input type="text" id="password" name="password"><br>
-	<!-- 비밀번호 확인 X -->
-	
-	<!-- csrf token -->
-	<input type="hidden" id="_csrf" name="_csrf" value=""><br>
-	
-	<button id="btnRegister">Register</button>
+    <div class="threads-auth-container">
+        <div class="threads-auth-card threads-fade-in">
+            <div class="text-center mb-4">
+                <h1 class="threads-logo">Q&A 게시판</h1>
+                <p class="threads-subtitle">계정 만들기</p>
+            </div>
 
-<script>
-	window.onload = function(){
-		getCsrfToken();
-		
-		document.querySelector("#btnRegister").onclick = register;
-	}
-	
-	// csrf controller 에 token 요청
-	async function getCsrfToken(){
-		let response = await fetch("/csrf-token", {method: "get", credentials: "same-origin"});
-		console.log(response);
-		let data = await response.json();
-		console.log(data);
-		document.querySelector("#_csrf").value = data.token;
-	}
-	
-	// 로그인 
-	async function register(){
-		
-		let url = "/users";
-		
-		let name = document.querySelector("#name").value;
-		let email = document.querySelector("#email").value;
-		let password = document.querySelector("#password").value;
-		let _csrf = document.querySelector("#_csrf").value;
-		
-		let urlParams = new URLSearchParams({
-			name, email, password, _csrf  // javascript es6 shorthand property 문법
-		});
-		
-		let fetchOptions = {
-			method: "post",
-			body: urlParams
-		}
-		
-		let response = await fetch(url, fetchOptions);
-		let data = await response.json();
-		
-		console.log(data);
-		
-		// 로그인 결과에 따른 처리
-		if( data.result == "success" ){
-			alert("회원가입 되었습니다. 로그인 페이지로 이동합니다.");
-			window.location.href = "/login";
-		}else{
-			alert("회원가입 과정에서 오류가 발생했습니다.")
-		}
-	}
-	
-</script>	
+            <form id="register-form">
+                <div class="mb-3">
+                    <label for="name" class="threads-label">이름</label>
+                    <input type="text" class="threads-input" id="name" name="name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="threads-label">이메일</label>
+                    <input type="email" class="threads-input" id="email" name="email" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="threads-label">비밀번호</label>
+                    <input type="password" class="threads-input" id="password" name="password" required>
+                </div>
+
+                <input type="hidden" id="_csrf" name="_csrf">
+
+                <button type="submit" class="threads-btn-primary w-100 mb-3" id="btnRegister">
+                    계정 만들기
+                </button>
+
+                <div id="errorMessage" class="threads-error"></div>
+                <div id="successMessage" class="threads-success"></div>
+            </form>
+
+            <div class="threads-divider">
+                <span>이미 계정이 있으신가요?</span>
+            </div>
+
+            <a href="/login" class="threads-btn-secondary w-100">
+                로그인
+            </a>
+        </div>
+
+        <!-- Theme toggle in corner -->
+        <div style="position: fixed; top: 16px; right: 16px;" id="theme-toggle-container"></div>
+    </div>
+
+    <script src="/js/theme-toggle.js"></script>
+    <script>
+        window.onload = function() {
+            getCsrfToken();
+
+            document.querySelector("#btnRegister").onclick = (e) => {
+                e.preventDefault();
+                register();
+            };
+        }
+
+        // csrf controller에 token 요청
+        async function getCsrfToken() {
+            let response = await fetch("/csrf-token", {method: "get", credentials: "same-origin"});
+            console.log(response);
+            let data = await response.json();
+            console.log(data);
+            document.querySelector("#_csrf").value = data.token;
+        }
+
+        // 회원가입
+        async function register() {
+            let url = "/users";
+
+            let name = document.querySelector("#name").value;
+            let email = document.querySelector("#email").value;
+            let password = document.querySelector("#password").value;
+            let _csrf = document.querySelector("#_csrf").value;
+
+            let urlParams = new URLSearchParams({
+                name, email, password, _csrf
+            });
+
+            let fetchOptions = {
+                method: "post",
+                body: urlParams
+            }
+
+            let response = await fetch(url, fetchOptions);
+            let data = await response.json();
+
+            console.log(data);
+
+            // 회원가입 결과에 따른 처리
+            if(data.result === "success") { // ==
+                document.querySelector("#successMessage").innerText = "Registration successful! Redirecting to login page...";
+                document.querySelector("#errorMessage").innerText = "";
+                setTimeout(() => {
+                    window.location.href = "/login";
+                }, 1500);
+            } else {
+                document.querySelector("#errorMessage").innerText = "An error occurred during registration. Please try again.";
+                document.querySelector("#successMessage").innerText = "";
+            }
+        }
+    </script>
 </body>
 </html>
-<!-- csrf 설정 후 받은 token 을 전송해야 함. login2.html 로 변경 후 새로운 login.html 생성 -->

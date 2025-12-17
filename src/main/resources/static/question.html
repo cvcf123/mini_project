@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>질문 상세</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/base.css" rel="stylesheet">
+    <link href="/css/components.css" rel="stylesheet">
+    <link href="/css/layout.css" rel="stylesheet">
+    <link href="/css/animations.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="threads-navbar">
+        <div class="threads-container">
+            <div class="d-flex justify-content-between align-items-center py-3"> <!--
+                <a href="/" class="threads-btn-secondary">← Back to Questions</a>
+                
+                <a href="/" class="threads-btn-secondary">← Back to Questions</a>
+                -->
+                <a href="/" class="threads-btn-secondary">돌아가기</a>
+                <div class="d-flex align-items-center gap-2">
+                    <div id="theme-toggle-container"></div>
+                    <div id="user-actions"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="threads-container mt-4">
+        <div id="question-container"></div>
+
+        <div class="threads-line"></div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 id="answers-heading">답변</h3>
+            <button class="threads-btn-ghost btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#allAnswersCollapse" aria-expanded="true" aria-controls="allAnswersCollapse" id="toggleAllAnswersBtn">
+               답변 숨기기
+            </button>
+        </div>
+
+        <div class="collapse show" id="allAnswersCollapse">
+            <div id="answers-container"></div>
+
+            <div class="threads-card mt-3" id="answer-form-card" style="display: none;">
+                <h5 class="threads-title mb-3">답변 달기</h5>
+                <form id="answer-form">
+                    <div class="mb-3">
+                        <textarea class="threads-textarea" id="answer-content" rows="3" required placeholder="답변 작성"></textarea>
+                    </div>
+                    <button type="submit" class="threads-btn-primary">답변 달기</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Question Modal -->
+    <div class="modal fade" id="editQuestionModal" tabindex="-1" aria-labelledby="editQuestionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editQuestionModalLabel">질문 수정</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-question-form">
+                        <div class="mb-3">
+                            <label for="edit-question-title" class="threads-label">제목</label>
+                            <input type="text" class="threads-input" id="edit-question-title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-question-content" class="threads-label">내용</label>
+                            <textarea class="threads-textarea" id="edit-question-content" rows="5" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="threads-label">태그</label>
+                            <div id="edit-question-tags" class="threads-tags"></div>
+                        </div>
+                        <button type="submit" class="threads-btn-primary">저장</button>
+                        <button type="button" class="threads-btn-ghost" data-bs-dismiss="modal">취소</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Answer Modal -->
+    <div class="modal fade" id="editAnswerModal" tabindex="-1" aria-labelledby="editAnswerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAnswerModalLabel">답변 수정</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-answer-form">
+                        <div class="mb-3">
+                            <label for="edit-answer-content" class="threads-label">내용</label>
+                            <textarea class="threads-textarea" id="edit-answer-content" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="threads-btn-primary">저장</button>
+                        <button type="button" class="threads-btn-ghost" data-bs-dismiss="modal">취소</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Comment Modal -->
+    <div class="modal fade" id="editCommentModal" tabindex="-1" aria-labelledby="editCommentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCommentModalLabel">댓글 수정</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-comment-form">
+                        <div class="mb-3">
+                            <label for="edit-comment-content" class="threads-label">내용</label>
+                            <textarea class="threads-textarea" id="edit-comment-content" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="threads-btn-primary">저장</button>
+                        <button type="button" class="threads-btn-ghost" data-bs-dismiss="modal">취소</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/theme-toggle.js"></script>
+    <script>
+        let currentUser = null;
+        let csrfToken = null;
+
+        const userActions = document.getElementById('user-actions');
+        const questionContainer = document.getElementById('question-container');
+        const answersContainer = document.getElementById('answers-container');
+        const answerFormCard = document.getElementById('answer-form-card');
+        const answerForm = document.getElementById('answer-form');
+        const answerContentInput = document.getElementById('answer-content');
+        const toggleAllAnswersBtn = document.getElementById('toggleAllAnswersBtn');
+
+        const editQuestionForm = document.getElementById('edit-question-form');
+        const editQuestionTitleInput = document.getElementById('edit-question-title');
+        const editQuestionContentInput = document.getElementById('edit-question-content');
+        const editQuestionTagsContainer = document.getElementById('edit-question-tags');
+        const editAnswerForm = document.getElementById('edit-answer-form');
+        const editAnswerContentInput = document.getElementById('edit-answer-content');
+        const editCommentForm = document.getElementById('edit-comment-form');
+        const editCommentContentInput = document.getElementById('edit-comment-content');
+
+        let editQuestionModal = null;
+        let editAnswerModal = null;
+        let editCommentModal = null;
+
+        let editingQuestionId = null;
+        let editingAnswerId = null;
+        let editingCommentId = null;
+        let editModalsInitialized = false;
+        let allTags = [];
+
+        const renderSelectableTags = (container, tags, selectedIds = []) => {
+            if (!container) return;
+            container.innerHTML = '';
+            tags.forEach(tag => {
+                const el = document.createElement('span');
+                el.className = `threads-tag threads-tag-selectable${selectedIds.includes(tag.id) ? ' threads-tag-selected' : ''}`;
+                el.dataset.tagId = String(tag.id);
+                el.textContent = tag.name;
+                container.appendChild(el);
+            });
+        };
+
+        const getSelectedTagIds = (container) => {
+            if (!container) return [];
+            return Array.from(container.querySelectorAll('.threads-tag-selected'))
+                .map(el => Number(el.dataset.tagId))
+                .filter(id => !Number.isNaN(id));
+        };
+
+        const loadTags = async () => {
+            if (allTags.length) return allTags;
+            const response = await fetch('/tags');
+            if (!response.ok) throw new Error('Failed to load tags');
+            allTags = await response.json();
+            return allTags;
+        };
+
+        const setupEditModals = () => {
+            if (editModalsInitialized) return;
+
+            const editQuestionModalEl = document.getElementById('editQuestionModal');
+            const editAnswerModalEl = document.getElementById('editAnswerModal');
+            const editCommentModalEl = document.getElementById('editCommentModal');
+
+            if (!editQuestionModalEl || !editAnswerModalEl || !editCommentModalEl) return;
+
+            editQuestionModal = bootstrap.Modal.getOrCreateInstance(editQuestionModalEl);
+            editAnswerModal = bootstrap.Modal.getOrCreateInstance(editAnswerModalEl);
+            editCommentModal = bootstrap.Modal.getOrCreateInstance(editCommentModalEl);
+
+            if (editQuestionForm) {
+                editQuestionForm.addEventListener('submit', handleEditQuestionSubmit);
+                editQuestionModalEl.addEventListener('hidden.bs.modal', () => {
+                    editingQuestionId = null;
+                    editQuestionForm.reset();
+                });
+            }
+            if (editAnswerForm) {
+                editAnswerForm.addEventListener('submit', handleEditAnswerSubmit);
+                editAnswerModalEl.addEventListener('hidden.bs.modal', () => {
+                    editingAnswerId = null;
+                    editAnswerForm.reset();
+                });
+            }
+            if (editCommentForm) {
+                editCommentForm.addEventListener('submit', handleEditCommentSubmit);
+                editCommentModalEl.addEventListener('hidden.bs.modal', () => {
+                    editingCommentId = null;
+                    editCommentForm.reset();
+                });
+            }
+
+            if (editQuestionTagsContainer) {
+                editQuestionTagsContainer.addEventListener('click', (e) => {
+                    const tagEl = e.target.closest('.threads-tag-selectable');
+                    if (!tagEl) return;
+                    tagEl.classList.toggle('threads-tag-selected');
+                });
+            }
+
+            editModalsInitialized = true;
+        };
+
+        // Event listener for the main answers collapse button
+        const allAnswersCollapseElement = document.getElementById('allAnswersCollapse');
+        allAnswersCollapseElement.addEventListener('hide.bs.collapse', function () {
+            toggleAllAnswersBtn.textContent = '펼치기';
+        });
+        allAnswersCollapseElement.addEventListener('show.bs.collapse', function () {
+            toggleAllAnswersBtn.textContent = '숨기기';
+        });
+
+        const formatDate = (dateString) => {
+            if (!dateString) return 'Just now';
+            const d = new Date(dateString);
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        };
+
+        const createAvatar = (username, size = 'md') => {
+            const avatar = document.createElement('div');
+            avatar.className = `threads-avatar threads-avatar-${size} me-3`;
+            avatar.textContent = username ? username.charAt(0).toUpperCase() : '?';
+            return avatar;
+        }
+
+        const renderComments = async (answerId, commentsContainer) => {
+            try {
+                const commentsResponse = await fetch(`/comments/answer/${answerId}`);
+                if (!commentsResponse.ok) throw new Error('Could not fetch comments');
+
+                const comments = await commentsResponse.json();
+
+                comments.forEach(comment => {
+
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment mt-3';
+
+                    commentElement.innerHTML = `
+
+                        <div class="threads-line threads-line-subtle"></div>
+                        ${
+                            currentUser && currentUser.id === comment.userId
+                                ? `
+                                <div class="threads-actions">
+                                    <button class="threads-btn-text btn-sm" type="button"
+                                        onclick="editComment(${comment.id})">수정</button>
+                                    <button class="threads-btn-text-danger btn-sm" type="button"
+                                        onclick="deleteComment(${comment.id})">삭제</button>
+                                </div>
+                                `
+                                : ''
+                        }
+
+                        <div class="d-flex align-items-start">
+                            ${createAvatar(comment.name).outerHTML}
+                            <div>
+                                <div>
+                                    <strong>${comment.name}</strong>
+                                    <small class="text-muted ms-2">
+                                        ${formatDate(comment.createdAt)}
+                                    </small>
+                                </div>
+
+                                <p class="mt-1 mb-0" id="comment-content-${comment.id}">
+                                    ${comment.content}
+                                </p>
+
+                            </div>
+                        </div>
+                    `;
+
+                    commentsContainer.appendChild(commentElement);
+                });
+            } catch (e) {
+                commentsContainer.innerHTML =
+                    '<small class="text-danger">Could not load comments.</small>';
+            }
+        };
+
+        
+        const renderAnswers = async (questionId) => {
+            try {
+                const answersResponse = await fetch(`/answers/question/${questionId}`);
+                if (!answersResponse.ok) throw new Error('Could not fetch answers');
+                const answers = await answersResponse.json();
+
+                document.getElementById('answers-heading').textContent =
+                    `답변 (${answers.length}개)`;
+
+                answersContainer.innerHTML = '';
+                if (answers.length === 0) {
+                    answersContainer.innerHTML = '<p>작성된 답변없음yet.</p>';
+                    return;
+                }
+
+                for (const answer of answers) {
+                    const answerElement = document.createElement('div');
+                    answerElement.className = 'threads-post threads-answer';
+
+                    answerElement.innerHTML = `
+
+                        ${
+                            currentUser && currentUser.id === answer.userId
+                                ? `
+                                <div class="threads-actions">
+                                    <button class="threads-btn-text btn-sm" type="button"
+                                        onclick="editAnswer(${answer.id})">수정</button>
+                                    <button class="threads-btn-text-danger btn-sm" type="button"
+                                        onclick="deleteAnswer(${answer.id})">삭제</button>
+                                </div>
+                                `
+                                : ''
+                        }
+
+                        <div class="d-flex align-items-start">
+                            ${createAvatar(answer.userName, 'md').outerHTML}
+                            <div class="flex-grow-1">
+                                <div class="mb-2">
+                                    <strong class="threads-author">${answer.userName}</strong>
+                                    <small class="threads-time ms-2">
+                                        ${formatDate(answer.createdAt)}
+                                    </small>
+                                </div>
+
+                                <p class="mt-1" id="answer-content-${answer.id}">
+                                    ${answer.content}
+                                </p>
+
+                                <div class="comments-container"
+                                     id="comments-for-answer-${answer.id}"></div>
+
+                                ${
+                                    currentUser
+                                        ? `
+                                        <form class="comment-form mt-2"
+                                              data-answer-id="${answer.id}">
+                                            <div class="input-group">
+                                                <input type="text"
+                                                       class="threads-input"
+                                                       placeholder="댓글을 달아주세요"
+                                                       required>
+                                                <button class="threads-btn-ghost btn-sm"
+                                                        type="submit">등록</button>
+                                            </div>
+                                        </form>
+                                        `
+                                        : ''
+                                }
+                            </div>
+                        </div>
+                    `;
+
+                    answersContainer.appendChild(answerElement);
+
+                    const commentsContainer =
+                        document.getElementById(`comments-for-answer-${answer.id}`);
+                    await renderComments(answer.id, commentsContainer);
+                }
+
+                document.querySelectorAll('.comment-form')
+                    .forEach(form => form.addEventListener('submit', handleCommentSubmit));
+
+            } catch (error) {
+                answersContainer.innerHTML =
+                    `<p class="text-danger">${error.message}</p>`;
+            }
+        };
+
+
+        const renderQuestion = async (questionId) => {
+             try {
+                const questionResponse = await fetch(`/questions/${questionId}`);
+                if (!questionResponse.ok) throw new Error('Question not found');
+                const question = await questionResponse.json();
+                
+                questionContainer.innerHTML = `
+
+                    <div class="threads-post threads-question" style="position: relative;">
+                        ${currentUser && currentUser.id === question.writerId ? `
+                        <div class="threads-actions">
+                            <button class="threads-btn-text btn-sm" type="button"
+                                onclick="editQuestion(${question.id})">수정</button>
+                            <button class="threads-btn-text-danger btn-sm" type="button"
+                                onclick="deleteQuestion(${question.id})">삭제</button>
+                        </div>
+                        ` : ''}
+
+                        <div class="d-flex align-items-start">
+                            ${createAvatar(question.writerNickname, 'lg').outerHTML}
+                            <div class="flex-grow-1">
+                                <h2 class="threads-question-title" id="question-title-${question.id}">${question.title}</h2>
+                                <div class="mb-2">
+                                    <strong class="threads-author">${question.writerNickname}</strong>
+                                    <small class="threads-time ms-2">${formatDate(question.createdAt)}</small>
+                                </div>
+                                <p class="threads-content mt-3" id="question-content-${question.id}">${question.content}</p>
+                                <div class="threads-tags mt-3" id="question-tags-${question.id}">
+                                    ${question.tags.map(tag => `<span class="threads-tag">${tag}</span>`).join('')}
+                                </div>
+                                ${currentUser && currentUser.id === question.writerId ? `
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                await renderAnswers(questionId);
+            } catch(error) {
+                questionContainer.innerHTML = `<p class="text-danger">${error.message}.</p>`;
+            }
+        }
+        
+        const handleCommentSubmit = async (e) => {
+            e.preventDefault();
+            if (!currentUser) {
+                alert('Please login to comment.');
+                window.location.href = '/login';
+                return;
+            }
+            const form = e.target;
+            const answerId = form.dataset.answerId;
+            const content = form.querySelector('input').value;
+            const headers = { 
+                'Content-Type': 'application/json',
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            try {
+            	const payload = {
+            		    answerId: Number(answerId),
+            		    content: content,
+            		    userId: Number(currentUser.id)
+            		};
+
+            		console.log(" COMMENT PAYLOAD", payload);
+
+            		const response = await fetch('/comments', {
+            		    method: 'POST',
+            		    headers: headers,
+            		    body: JSON.stringify(payload)
+            		});
+
+                 if (response.status === 401 || response.status === 403) {
+                    alert('You need to be logged in to comment. Redirecting to login page.');
+                    window.location.href = '/login';
+                    return;
+                }
+                if (!response.ok) throw new Error('Failed to post comment');
+                window.location.reload();
+            } catch (error) {
+                console.error('Error posting comment:', error);
+                alert('Failed to post comment.');
+            }
+        };
+
+        const handleAnswerSubmit = async (e) => {
+            e.preventDefault();
+            if (!currentUser) {
+                alert('Please login to answer.');
+                window.location.href = '/login';
+                return;
+            }
+            const content = answerContentInput.value;
+            const headers = { 
+                'Content-Type': 'application/json',
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            try {
+                const response = await fetch('/answers', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({ 
+                        questionId: Number(new URLSearchParams(window.location.search).get('id')), 
+                        content, 
+                        userId: currentUser.id 
+                    })
+                });
+                if (response.status === 401 || response.status === 403) {
+                    alert('You need to be logged in to answer. Redirecting to login page.');
+                    window.location.href = '/login';
+                    return;
+                }
+                if (!response.ok) {
+                     const errorData = await response.json();
+                     throw new Error(errorData.message || 'Failed to post answer');
+                }
+                window.location.reload();
+            } catch (error) {
+                console.error('Error posting answer:', error);
+                alert(`Failed to post answer: ${error.message}`);
+            }
+        };
+
+        const checkLoginStatus = async () => {
+            try {
+                const response = await fetch('/users/info');
+                if (!response.ok) throw new Error('Not logged in');
+                currentUser = await response.json();
+                
+                userActions.innerHTML = `
+                    <span class="threads-author me-2">${currentUser.name}님 환영합니다</span>
+                    <button type="button" class="threads-btn-secondary" id="logout-button">로그아웃</button>
+                `;
+                document.getElementById('logout-button').addEventListener('click', () => {
+                    const headers = { [csrfToken.headerName]: csrfToken.token };
+                    fetch('/logout', { method: 'POST', headers: headers })
+                        .then(() => window.location.href = '/login');
+                });
+                answerFormCard.style.display = 'block';
+
+            } catch (error) {
+                currentUser = null;
+                userActions.innerHTML = `
+                    <a href="/login" class="threads-btn-primary">로그인</a>
+                    <a href="/register" class="threads-btn-secondary">회원가입</a>
+                `;
+                answerFormCard.style.display = 'none';
+            }
+        };
+
+        const initializeApp = async () => {
+            try {
+                const csrfResponse = await fetch('/csrf-token');
+                csrfToken = await csrfResponse.json();
+
+                setupEditModals();
+			
+                await checkLoginStatus();
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                const questionId = urlParams.get('id');
+
+                if (!questionId) {
+                    questionContainer.innerHTML = '<p class="text-danger">Question ID is missing.</p>';
+                    return;
+                }
+
+                await renderQuestion(questionId);
+                answerForm.addEventListener('submit', handleAnswerSubmit);
+
+            } catch (error) {
+                console.error('Failed to initialize app:', error);
+                questionContainer.innerHTML = '<p class="text-danger">Could not initialize app.</p>';
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+        function openEditAnswerModal(answerId) {
+            setupEditModals();
+            if (!editAnswerContentInput) return;
+            editingAnswerId = answerId;
+            const contentEl = document.getElementById(`answer-content-${answerId}`);
+            editAnswerContentInput.value = contentEl ? contentEl.innerText.trim() : '';
+            editAnswerModal?.show();
+            setTimeout(() => editAnswerContentInput.focus(), 150);
+        }
+
+        function openEditCommentModal(commentId) {
+            setupEditModals();
+            if (!editCommentContentInput) return;
+            editingCommentId = commentId;
+            const contentEl = document.getElementById(`comment-content-${commentId}`);
+            editCommentContentInput.value = contentEl ? contentEl.innerText.trim() : '';
+            editCommentModal?.show();
+            setTimeout(() => editCommentContentInput.focus(), 150);
+        }
+
+        function openEditQuestionModal(questionId) {
+            setupEditModals();
+            if (!editQuestionTitleInput || !editQuestionContentInput) return;
+            editingQuestionId = questionId;
+            const titleEl = document.getElementById(`question-title-${questionId}`);
+            const contentEl = document.getElementById(`question-content-${questionId}`);
+            editQuestionTitleInput.value = titleEl ? titleEl.innerText.trim() : '';
+            editQuestionContentInput.value = contentEl ? contentEl.innerText.trim() : '';
+
+            const currentTagNames = (() => {
+                const tagsEl = document.getElementById(`question-tags-${questionId}`);
+                if (!tagsEl) return [];
+                return Array.from(tagsEl.querySelectorAll('.threads-tag'))
+                    .map(el => el.textContent.trim())
+                    .filter(Boolean);
+            })();
+
+            (async () => {
+                try {
+                    const tags = await loadTags();
+                    const selectedIds = tags
+                        .filter(tag => currentTagNames.includes(tag.name))
+                        .map(tag => tag.id);
+                    renderSelectableTags(editQuestionTagsContainer, tags, selectedIds);
+                } catch (e) {
+                    if (editQuestionTagsContainer) {
+                        editQuestionTagsContainer.innerHTML = '<small class="text-danger">Failed to load tags.</small>';
+                    }
+                }
+            })();
+
+            editQuestionModal?.show();
+            setTimeout(() => editQuestionTitleInput.focus(), 150);
+        }
+
+        async function handleEditAnswerSubmit(e) {
+            e.preventDefault();
+            if (!editingAnswerId) return;
+
+            const newContent = editAnswerContentInput.value.trim();
+            if (!newContent) return;
+
+            const headers = {
+                'Content-Type': 'application/json',
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            const response = await fetch(`/answers/${editingAnswerId}`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ content: newContent })
+            });
+
+            if (!response.ok) {
+                alert('Failed to update answer');
+                return;
+            }
+
+            const contentEl = document.getElementById(`answer-content-${editingAnswerId}`);
+            if (contentEl) contentEl.innerText = newContent;
+            editAnswerModal?.hide();
+        }
+
+        async function handleEditCommentSubmit(e) {
+            e.preventDefault();
+            if (!editingCommentId) return;
+
+            const newContent = editCommentContentInput.value.trim();
+            if (!newContent) return;
+
+            const headers = {
+                'Content-Type': 'application/json',
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            const response = await fetch(`/comments/${editingCommentId}`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ content: newContent })
+            });
+
+            if (!response.ok) {
+                alert('Failed to update comment');
+                return;
+            }
+
+            const contentEl = document.getElementById(`comment-content-${editingCommentId}`);
+            if (contentEl) contentEl.innerText = newContent;
+            editCommentModal?.hide();
+        }
+
+        async function handleEditQuestionSubmit(e) {
+            e.preventDefault();
+            if (!editingQuestionId) return;
+
+            const newTitle = editQuestionTitleInput.value.trim();
+            const newContent = editQuestionContentInput.value.trim();
+            const tagIds = getSelectedTagIds(editQuestionTagsContainer);
+            if (!newTitle || !newContent) return;
+
+            const headers = {
+                'Content-Type': 'application/json',
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            try {
+                const response = await fetch(`/questions/${editingQuestionId}`, {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify({
+                        title: newTitle,
+                        content: newContent,
+                        tagIds: tagIds
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert('Failed to update question: ' + (error.message || 'Unknown error'));
+                    return;
+                }
+
+                const titleEl = document.getElementById(`question-title-${editingQuestionId}`);
+                const contentEl = document.getElementById(`question-content-${editingQuestionId}`);
+                const tagsEl = document.getElementById(`question-tags-${editingQuestionId}`);
+                if (titleEl) titleEl.innerText = newTitle;
+                if (contentEl) contentEl.innerText = newContent;
+                if (tagsEl) {
+                    tagsEl.innerHTML = '';
+                    allTags
+                        .filter(tag => tagIds.includes(tag.id))
+                        .forEach(tag => {
+                            const span = document.createElement('span');
+                            span.className = 'threads-tag';
+                            span.textContent = tag.name;
+                            tagsEl.appendChild(span);
+                        });
+                }
+                editQuestionModal?.hide();
+            } catch (error) {
+                console.error('Error updating question:', error);
+                alert('Failed to update question');
+            }
+        }
+
+        async function editAnswer(answerId) {
+            openEditAnswerModal(answerId);
+        }
+
+        async function deleteAnswer(answerId) {
+            if (!confirm('답변을 지울까요?')) return;
+
+            const headers = {
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            const response = await fetch(`/answers/${answerId}`, {
+                method: 'DELETE',
+                headers
+            });
+
+            if (!response.ok) {
+                alert('Failed to delete answer');
+                return;
+            }
+
+            window.location.reload();
+        }
+        async function editComment(commentId) {
+            openEditCommentModal(commentId);
+        }
+
+        async function deleteComment(commentId) {
+            if (!confirm('댓글을 지울까요?')) return;
+
+            const headers = {
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            const response = await fetch(`/comments/${commentId}`, {
+                method: 'DELETE',
+                headers
+            });
+
+            if (!response.ok) {
+                alert('Failed to delete comment');
+                return;
+            }
+
+            window.location.reload();
+        }
+
+        async function editQuestion(questionId) {
+            openEditQuestionModal(questionId);
+        }
+
+        async function deleteQuestion(questionId) {
+            if (!confirm('이 질문을 정말 삭제하시겠습니까? 이 질문을 삭제하면 모든 답변과 댓글도 함께 삭제됩니다.')) return;
+
+            const headers = {
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            try {
+                const response = await fetch(`/questions/${questionId}`, {
+                    method: 'DELETE',
+                    headers
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert('Failed to delete question: ' + (error.message || 'Unknown error'));
+                    return;
+                }
+
+                alert('질문이 성공적으로 삭제되었습니다.');
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Error deleting question:', error);
+                alert('Failed to delete question');
+            }
+        }
+
+    </script>
+</body>
+</html>

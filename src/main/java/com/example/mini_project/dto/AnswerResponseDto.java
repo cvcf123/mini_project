@@ -1,20 +1,20 @@
 package com.example.mini_project.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+@NoArgsConstructor
+public class AnswerResponseDto {
     private Long id;
-    private String name;
-    private String email;
-    private String password;
+    private String content;
+    private String userName;
+    private Long userId;   // ⭐ 추가
     private LocalDateTime createdAt;
 }

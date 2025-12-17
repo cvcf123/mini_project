@@ -5,16 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
-    private Long id;
-    private String name;
-    private String email;
-    private String password;
-    private LocalDateTime createdAt;
+public class CommentRequestDto {
+	  private Long answerId; //어떤 답변(Answer)에 대한 댓글인지 식별.
+	  private String content; //댓글 내용.
+	  private Long userId;       // 작성자
 }

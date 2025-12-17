@@ -1,14 +1,357 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문제</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/base.css" rel="stylesheet">
+    <link href="/css/components.css" rel="stylesheet">
+    <link href="/css/layout.css" rel="stylesheet">
+    <link href="/css/animations.css" rel="stylesheet">
 </head>
 <body>
-	<h1>index.html</h1>
-	<!-- PageController 를 통해서 페이지 이동 -->
-	<a href="/board">게시판</a>
-	<a href="/login">로그인</a>
-	<a href="/register">회원가입</a>
+    <nav class="threads-navbar">
+        <div class="threads-container">
+            <div class="d-flex justify-content-between align-items-center py-3"> <!--
+                <h1 class="threads-logo">Q&A 게시판</h1>
+                -->
+                <h1 class="threads-logo">Q&A 게시판</h1>
+                </h1>
+                <div class="d-flex align-items-center gap-2">
+                    <div id="theme-toggle-container"></div>
+                    <div id="user-actions">
+                        <a href="/login" class="threads-btn-primary">로그인</a>
+                        <a href="/register" class="threads-btn-secondary">회원 가입</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="threads-container">
+        <div class="threads-card mt-3">
+            <form id="search-form" class="d-flex align-items-center gap-2">
+                <div class="flex-grow-1">
+
+                    <input type="text" class="threads-input" id="search-query" placeholder="제목 또는 내용으로 검색">
+                </div>
+                <button type="submit" class="threads-btn-primary">찾기</button>
+                <button type="button" class="threads-btn-ghost" id="search-clear">지움</button>
+            </form>
+            <small class="threads-time" id="search-status" style="display:none; margin-top: 8px;"></small>
+            <div id="search-tag-filter" class="threads-tags mt-2"></div>
+        </div>
+        <div id="question-list" class="threads-feed">
+            <!-- Questions will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Create Question Modal -->
+    <div class="modal fade" id="createQuestionModal" tabindex="-1" aria-labelledby="createQuestionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createQuestionModalLabel">문제 등록</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="create-question-form">
+                        <div class="mb-3">
+                            <label for="question-title" class="threads-label">제목</label>
+                            <input type="text" class="threads-input" id="question-title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="question-content" class="threads-label">내용</label>
+                            <textarea class="threads-textarea" id="question-content" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="threads-label">카테고리</label>
+                            <div id="create-question-tags" class="threads-tags"></div>
+                        </div>
+                        <button type="submit" class="threads-btn-primary">등록</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/theme-toggle.js"></script>
+    <script>
+        const questionList = document.getElementById('question-list');
+        const createQuestionForm = document.getElementById('create-question-form');
+        const userActions = document.getElementById('user-actions');
+        const searchForm = document.getElementById('search-form');
+        const searchQueryInput = document.getElementById('search-query');
+        const searchClearButton = document.getElementById('search-clear');
+        const searchStatus = document.getElementById('search-status');
+        const searchTagFilter = document.getElementById('search-tag-filter');
+        const createQuestionTagsContainer = document.getElementById('create-question-tags');
+        const createQuestionModalEl = document.getElementById('createQuestionModal');
+
+        let csrfToken = null;
+        let currentUser = null;
+        let currentKeyword = '';
+        let currentTagId = null;
+        let allTags = [];
+
+        const renderSelectableTags = (container, tags, selectedIds = []) => {
+            if (!container) return;
+            container.innerHTML = '';
+            tags.forEach(tag => {
+                const el = document.createElement('span');
+                el.className = `threads-tag threads-tag-selectable${selectedIds.includes(tag.id) ? ' threads-tag-selected' : ''}`;
+                el.dataset.tagId = String(tag.id);
+                el.textContent = tag.name;
+                container.appendChild(el);
+            });
+        };
+
+        const getSelectedTagIds = (container) => {
+            if (!container) return [];
+            return Array.from(container.querySelectorAll('.threads-tag-selected'))
+                .map(el => Number(el.dataset.tagId))
+                .filter(id => !Number.isNaN(id));
+        };
+
+        const loadTags = async () => {
+            if (allTags.length) return allTags;
+            const response = await fetch('/tags');
+            if (!response.ok) throw new Error('Failed to load tags');
+            allTags = await response.json();
+            return allTags;
+        };
+
+        const renderSearchTagFilter = () => {
+            if (!searchTagFilter) return;
+            searchTagFilter.innerHTML = '';
+
+            const allEl = document.createElement('span');
+            allEl.className = `threads-tag threads-tag-selectable${currentTagId == null ? ' threads-tag-selected' : ''}`;
+            allEl.dataset.tagId = '';
+            allEl.textContent = 'All';
+            searchTagFilter.appendChild(allEl);
+
+            allTags.forEach(tag => {
+                const el = document.createElement('span');
+                el.className = `threads-tag threads-tag-selectable${currentTagId === tag.id ? ' threads-tag-selected' : ''}`;
+                el.dataset.tagId = String(tag.id);
+                el.textContent = tag.name;
+                searchTagFilter.appendChild(el);
+            });
+        };
+
+        if (searchTagFilter) {
+            searchTagFilter.addEventListener('click', async (e) => {
+                const tagEl = e.target.closest('.threads-tag-selectable');
+                if (!tagEl) return;
+
+                const raw = tagEl.dataset.tagId;
+                currentTagId = raw ? Number(raw) : null;
+                if (raw && Number.isNaN(currentTagId)) currentTagId = null;
+
+                renderSearchTagFilter();
+                await fetchQuestions(currentKeyword, currentTagId);
+            });
+        }
+
+        if (createQuestionTagsContainer) {
+            createQuestionTagsContainer.addEventListener('click', (e) => {
+                const tagEl = e.target.closest('.threads-tag-selectable');
+                if (!tagEl) return;
+                tagEl.classList.toggle('threads-tag-selected');
+            });
+        }
+
+        if (createQuestionModalEl) {
+            createQuestionModalEl.addEventListener('show.bs.modal', async () => {
+                try {
+                    const tags = await loadTags();
+                    renderSelectableTags(createQuestionTagsContainer, tags);
+                    renderSearchTagFilter();
+                } catch (e) {
+                    if (createQuestionTagsContainer) {
+                        createQuestionTagsContainer.innerHTML = '<small class="text-danger">태그를 불러오는데 실패했습니다.</small>';
+                    }
+                }
+            });
+        }
+
+        const checkLoginStatus = async () => {
+            try {
+                const response = await fetch('/users/info');
+                if (!response.ok) throw new Error('Not logged in');
+                currentUser = await response.json();
+
+                userActions.innerHTML = `
+                    <span class="threads-author me-2"> ${currentUser.name} 님  </span>
+                    <button type="button" class="threads-btn-primary" data-bs-toggle="modal" data-bs-target="#createQuestionModal">
+                        질문하기
+                    </button>
+                    <button type="button" class="threads-btn-secondary" id="logout-button">로그아웃</button>
+                `;
+                document.getElementById('logout-button').addEventListener('click', () => {
+                    const headers = { [csrfToken.headerName]: csrfToken.token };
+                    fetch('/logout', { method: 'POST', headers: headers })
+                        .then(() => window.location.href = '/login');
+                });
+            } catch (error) {
+                currentUser = null;
+                userActions.innerHTML = `
+                    <a href="/login" class="threads-btn-primary">로그인</a>
+                    <a href="/register" class="threads-btn-secondary">회원가입</a>
+                `;
+            }
+        };
+
+        const fetchQuestions = async (keyword = '', tagId = null) => {
+            try {
+                const trimmed = (keyword || '').trim();
+                const params = new URLSearchParams();
+                if (trimmed) params.set('q', trimmed);
+                if (tagId != null) params.set('tagId', String(tagId));
+                const url = params.toString() ? `/questions?${params.toString()}` : '/questions';
+                const response = await fetch(url);
+                const data = await response.json();
+
+                questionList.innerHTML = ''; // Clear existing list
+                currentKeyword = trimmed;
+                currentTagId = tagId;
+                renderSearchTagFilter();
+
+                if (trimmed) {
+                    const tagLabel = currentTagId != null
+                        ? ` in #${(allTags.find(t => t.id === currentTagId) || {}).name || currentTagId}`
+                        : '';
+                    searchStatus.textContent = `Showing results for "${trimmed}"${tagLabel} (${data.length})`;
+                    searchStatus.style.display = 'block';
+                } else if (currentTagId != null) {
+                    const tagName = (allTags.find(t => t.id === currentTagId) || {}).name || currentTagId;
+                    searchStatus.textContent = `Showing #${tagName} (${data.length})`;
+                    searchStatus.style.display = 'block';
+                } else {
+                    searchStatus.style.display = 'none';
+                }
+
+                if (data.length === 0) {
+                    questionList.innerHTML = (trimmed || currentTagId != null)
+                        ? '<p class="text-center">No matching questions.</p>'
+                        : '<p class="text-center">No questions yet.</p>';
+                    return;
+                }
+                data.forEach((question, index) => {
+                    const questionItem = document.createElement('a');
+                    questionItem.href = `/question.html?id=${question.id}`;
+                    questionItem.className = 'threads-card threads-card-hover threads-fade-in';
+                    questionItem.style.animationDelay = `${index * 0.05}s`;
+
+                    const d = new Date(question.createdAt);
+                    const timeString = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+                    const avatarInitial = question.writerNickname ? question.writerNickname.charAt(0).toUpperCase() : '?';
+                    const contentPreview = question.content ? question.content.substring(0, 150) : '';
+
+                    questionItem.innerHTML = `
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="threads-avatar threads-avatar-md">
+                                ${avatarInitial}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="threads-title mb-1">${question.title}</h5>
+                                        <span class="threads-author">${question.writerNickname}</span>
+                                    </div>
+                                    <small class="threads-time">${timeString}</small>
+                                </div>
+                                ${contentPreview ? `<p class="threads-preview">${contentPreview}${question.content.length > 150 ? '...' : ''}</p>` : ''}
+                                <div class="threads-tags">
+                                    ${question.tags.map(tag => `<span class="threads-tag">${tag}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    questionList.appendChild(questionItem);
+                });
+            } catch (error) {
+                console.error('Error fetching questions:', error);
+                questionList.innerHTML = '<p class="text-center text-danger">Error loading questions.</p>';
+            }
+        };
+
+        createQuestionForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const title = document.getElementById('question-title').value;
+            const content = document.getElementById('question-content').value;
+            const tagIds = getSelectedTagIds(createQuestionTagsContainer);
+            
+            const headers = {
+                'Content-Type': 'application/json',
+                [csrfToken.headerName]: csrfToken.token
+            };
+
+            try {
+                const response = await fetch('/questions', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        title: title,
+                        content: content,
+                        tagIds: tagIds
+                    })
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    alert('You need to be logged in to create a question. Redirecting to login page.');
+                    window.location.href = '/login';
+                    return;
+                }
+
+                if (!response.ok) {
+                    const errorBody = await response.json();
+                    throw new Error(errorBody.message || 'Failed to create question');
+                }
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById('createQuestionModal'));
+                modal.hide();
+                createQuestionForm.reset();
+                renderSelectableTags(createQuestionTagsContainer, allTags);
+                await fetchQuestions(currentKeyword, currentTagId); // Refresh the list (keep current filter)
+            } catch (error) {
+                console.error('Error creating question:', error);
+                alert(`Error creating question: ${error.message}.`);
+            }
+        });
+
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetchQuestions(searchQueryInput.value, currentTagId);
+        });
+
+        searchClearButton.addEventListener('click', async () => {
+            searchQueryInput.value = '';
+            currentTagId = null;
+            renderSearchTagFilter();
+            await fetchQuestions('', null);
+        });
+
+        const initializeApp = async () => {
+            try {
+                const response = await fetch('/csrf-token');
+                csrfToken = await response.json();
+                await checkLoginStatus();
+                await loadTags();
+                renderSearchTagFilter();
+                await fetchQuestions('', null);
+            } catch (error) {
+                console.error('Failed to initialize app:', error);
+                // Handle case where CSRF token fetch fails
+                userActions.innerHTML = '<p class="text-danger">Could not initialize app.</p>';
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
 </body>
 </html>

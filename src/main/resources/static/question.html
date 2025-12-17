@@ -236,10 +236,10 @@
         // Event listener for the main answers collapse button
         const allAnswersCollapseElement = document.getElementById('allAnswersCollapse');
         allAnswersCollapseElement.addEventListener('hide.bs.collapse', function () {
-            toggleAllAnswersBtn.textContent = 'Show Answers';
+            toggleAllAnswersBtn.textContent = '펼치기';
         });
         allAnswersCollapseElement.addEventListener('show.bs.collapse', function () {
-            toggleAllAnswersBtn.textContent = 'Hide Answers';
+            toggleAllAnswersBtn.textContent = '숨기기';
         });
 
         const formatDate = (dateString) => {

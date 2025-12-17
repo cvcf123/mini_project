@@ -33,7 +33,7 @@
         <div class="threads-card mt-3">
             <form id="search-form" class="d-flex align-items-center gap-2">
                 <div class="flex-grow-1">
-                    <input type="text" class="threads-input" id="search-query" placeholder="Search by title or content">
+                    <input type="text" class="threads-input" id="search-query" placeholder="제목 혹은 내용을 입력해주세요">
                 </div>
                 <button type="submit" class="threads-btn-primary">찾기</button>
                 <button type="button" class="threads-btn-ghost" id="search-clear">지움</button>
@@ -171,7 +171,7 @@
                     renderSearchTagFilter();
                 } catch (e) {
                     if (createQuestionTagsContainer) {
-                        createQuestionTagsContainer.innerHTML = '<small class="text-danger">Failed to load tags.</small>';
+                        createQuestionTagsContainer.innerHTML = '<small class="text-danger">태그를 불러오는데 실패했습니다.</small>';
                     }
                 }
             });
@@ -198,8 +198,8 @@
             } catch (error) {
                 currentUser = null;
                 userActions.innerHTML = `
-                    <a href="/login" class="threads-btn-primary">Login</a>
-                    <a href="/register" class="threads-btn-secondary">Register</a>
+                    <a href="/login" class="threads-btn-primary">로그인</a>
+                    <a href="/register" class="threads-btn-secondary">회원가입</a>
                 `;
             }
         };

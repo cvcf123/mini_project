@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Question Details</title>
+    <title>질문 상세</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/base.css" rel="stylesheet">
     <link href="/css/components.css" rel="stylesheet">
@@ -18,7 +18,7 @@
                 
                 <a href="/" class="threads-btn-secondary">← Back to Questions</a>
                 -->
-                <a href="/" class="threads-btn-secondary">Back to Questions</a>
+                <a href="/" class="threads-btn-secondary">돌아가기</a>
                 <div class="d-flex align-items-center gap-2">
                     <div id="theme-toggle-container"></div>
                     <div id="user-actions"></div>
@@ -33,9 +33,9 @@
         <div class="threads-line"></div>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 id="answers-heading">Answers</h3>
+            <h3 id="answers-heading">답변</h3>
             <button class="threads-btn-ghost btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#allAnswersCollapse" aria-expanded="true" aria-controls="allAnswersCollapse" id="toggleAllAnswersBtn">
-                Hide Answers
+               답변 숨기기
             </button>
         </div>
 
@@ -43,12 +43,12 @@
             <div id="answers-container"></div>
 
             <div class="threads-card mt-3" id="answer-form-card" style="display: none;">
-                <h5 class="threads-title mb-3">Post an Answer</h5>
+                <h5 class="threads-title mb-3">답변 달기</h5>
                 <form id="answer-form">
                     <div class="mb-3">
-                        <textarea class="threads-textarea" id="answer-content" rows="3" required placeholder="Your answer..."></textarea>
+                        <textarea class="threads-textarea" id="answer-content" rows="3" required placeholder="답변 작성"></textarea>
                     </div>
-                    <button type="submit" class="threads-btn-primary">Post Answer</button>
+                    <button type="submit" class="threads-btn-primary">답변 달기</button>
                 </form>
             </div>
         </div>
@@ -59,25 +59,25 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editQuestionModalLabel">Edit Question</h5>
+                    <h5 class="modal-title" id="editQuestionModalLabel">질문 수정</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="edit-question-form">
                         <div class="mb-3">
-                            <label for="edit-question-title" class="threads-label">Title</label>
+                            <label for="edit-question-title" class="threads-label">제목</label>
                             <input type="text" class="threads-input" id="edit-question-title" required>
                         </div>
                         <div class="mb-3">
-                            <label for="edit-question-content" class="threads-label">Content</label>
+                            <label for="edit-question-content" class="threads-label">내용</label>
                             <textarea class="threads-textarea" id="edit-question-content" rows="5" required></textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="threads-label">Tags</label>
+                            <label class="threads-label">태그</label>
                             <div id="edit-question-tags" class="threads-tags"></div>
                         </div>
-                        <button type="submit" class="threads-btn-primary">Save</button>
-                        <button type="button" class="threads-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="threads-btn-primary">저장</button>
+                        <button type="button" class="threads-btn-ghost" data-bs-dismiss="modal">취소</button>
                     </form>
                 </div>
             </div>
@@ -89,17 +89,17 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editAnswerModalLabel">Edit Answer</h5>
+                    <h5 class="modal-title" id="editAnswerModalLabel">답변 수정</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="edit-answer-form">
                         <div class="mb-3">
-                            <label for="edit-answer-content" class="threads-label">Content</label>
+                            <label for="edit-answer-content" class="threads-label">내용</label>
                             <textarea class="threads-textarea" id="edit-answer-content" rows="4" required></textarea>
                         </div>
-                        <button type="submit" class="threads-btn-primary">Save</button>
-                        <button type="button" class="threads-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="threads-btn-primary">저장</button>
+                        <button type="button" class="threads-btn-ghost" data-bs-dismiss="modal">취소</button>
                     </form>
                 </div>
             </div>
@@ -111,17 +111,17 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editCommentModalLabel">Edit Comment</h5>
+                    <h5 class="modal-title" id="editCommentModalLabel">댓글 수정</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="edit-comment-form">
                         <div class="mb-3">
-                            <label for="edit-comment-content" class="threads-label">Content</label>
+                            <label for="edit-comment-content" class="threads-label">내용</label>
                             <textarea class="threads-textarea" id="edit-comment-content" rows="3" required></textarea>
                         </div>
-                        <button type="submit" class="threads-btn-primary">Save</button>
-                        <button type="button" class="threads-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="threads-btn-primary">저장</button>
+                        <button type="button" class="threads-btn-ghost" data-bs-dismiss="modal">취소</button>
                     </form>
                 </div>
             </div>
@@ -317,11 +317,11 @@
                 const answers = await answersResponse.json();
 
                 document.getElementById('answers-heading').textContent =
-                    `Answers (${answers.length})`;
+                    `답변 (${answers.length}개)`;
 
                 answersContainer.innerHTML = '';
                 if (answers.length === 0) {
-                    answersContainer.innerHTML = '<p>No answers yet.</p>';
+                    answersContainer.innerHTML = '<p>작성된 답변없음yet.</p>';
                     return;
                 }
 
@@ -530,8 +530,8 @@
                 currentUser = await response.json();
                 
                 userActions.innerHTML = `
-                    <span class="threads-author me-2">Welcome, ${currentUser.name}</span>
-                    <button type="button" class="threads-btn-secondary" id="logout-button">Logout</button>
+                    <span class="threads-author me-2">${currentUser.name}님 환영합니다</span>
+                    <button type="button" class="threads-btn-secondary" id="logout-button">로그아웃</button>
                 `;
                 document.getElementById('logout-button').addEventListener('click', () => {
                     const headers = { [csrfToken.headerName]: csrfToken.token };
@@ -543,8 +543,8 @@
             } catch (error) {
                 currentUser = null;
                 userActions.innerHTML = `
-                    <a href="/login" class="threads-btn-primary">Login</a>
-                    <a href="/register" class="threads-btn-secondary">Register</a>
+                    <a href="/login" class="threads-btn-primary">로그인</a>
+                    <a href="/register" class="threads-btn-secondary">회원가입</a>
                 `;
                 answerFormCard.style.display = 'none';
             }

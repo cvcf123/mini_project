@@ -46,6 +46,7 @@ public class CommentServiceImplTest {
         CommentRequestDto request = CommentRequestDto.builder()
                 .answerId(1L)
                 .content("테스트 댓글")
+                .userId(1L)
                 .build();
 
         // mock User

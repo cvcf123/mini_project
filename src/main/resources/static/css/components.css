@@ -172,12 +172,63 @@
   opacity: 0.9;
 }
 
+/* Text-only buttons (e.g., Edit/Delete actions) */
+.threads-btn-text,
+.threads-btn-text-danger {
+  background-color: transparent;
+  border: none;
+  padding: 2px 4px;
+  border-radius: 6px;
+  font-size: var(--threads-fs-sm);
+  font-weight: var(--threads-fw-semibold);
+  cursor: pointer;
+  transition: all var(--threads-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--threads-space-xs);
+}
+
+.threads-btn-text {
+  color: var(--threads-accent);
+}
+
+.threads-btn-text:hover {
+  color: var(--threads-accent-hover);
+  text-decoration: underline;
+}
+
+.threads-btn-text-danger {
+  color: var(--threads-danger);
+}
+
+.threads-btn-text-danger:hover {
+  opacity: 0.85;
+  text-decoration: underline;
+}
+
+.threads-btn-text:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+.threads-btn-text-danger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.2);
+}
+
 /* Button sizes */
 .btn-sm.threads-btn-primary,
 .btn-sm.threads-btn-secondary,
 .btn-sm.threads-btn-ghost,
 .btn-sm.threads-btn-danger {
   padding: 6px 10px;
+  font-size: var(--threads-fs-xs);
+}
+
+.btn-sm.threads-btn-text,
+.btn-sm.threads-btn-text-danger {
+  padding: 2px 4px;
   font-size: var(--threads-fs-xs);
 }
 

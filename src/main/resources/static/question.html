@@ -274,9 +274,9 @@
                             currentUser && currentUser.id === comment.userId
                                 ? `
                                 <div class="threads-actions">
-                                    <button class="threads-btn-primary btn-sm" type="button"
+                                    <button class="threads-btn-text btn-sm" type="button"
                                         onclick="editComment(${comment.id})">수정</button>
-                                    <button class="threads-btn-danger btn-sm" type="button"
+                                    <button class="threads-btn-text-danger btn-sm" type="button"
                                         onclick="deleteComment(${comment.id})">삭제</button>
                                 </div>
                                 `
@@ -335,9 +335,9 @@
                             currentUser && currentUser.id === answer.userId
                                 ? `
                                 <div class="threads-actions">
-                                    <button class="threads-btn-primary btn-sm" type="button"
+                                    <button class="threads-btn-text btn-sm" type="button"
                                         onclick="editAnswer(${answer.id})">수정</button>
-                                    <button class="threads-btn-danger btn-sm" type="button"
+                                    <button class="threads-btn-text-danger btn-sm" type="button"
                                         onclick="deleteAnswer(${answer.id})">삭제</button>
                                 </div>
                                 `
@@ -410,10 +410,10 @@
                     <div class="threads-post threads-question" style="position: relative;">
                         ${currentUser && currentUser.id === question.writerId ? `
                         <div class="threads-actions">
-                            <button class="threads-btn-ghost btn-sm" type="button"
-                                onclick="editQuestion(${question.id})">Edit</button>
-                            <button class="threads-btn-danger btn-sm" type="button"
-                                onclick="deleteQuestion(${question.id})">Delete</button>
+                            <button class="threads-btn-text btn-sm" type="button"
+                                onclick="editQuestion(${question.id})">수정</button>
+                            <button class="threads-btn-text-danger btn-sm" type="button"
+                                onclick="deleteQuestion(${question.id})">삭제</button>
                         </div>
                         ` : ''}
 
